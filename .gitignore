@@ -13,3 +13,9 @@ build/
 tsconfig.tsbuildinfo
 .DS_Store
 Thumbs.db
+/dist/
+.vinext/
+.wrangler/
+*.tsbuildinfo
+.cloudflare-audit.json
+.backups/

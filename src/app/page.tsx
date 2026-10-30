@@ -4,10 +4,8 @@ import { buildStructuredData, serializeStructuredData } from "@/lib/structured-d
 
 export const dynamic = "force-dynamic";
 
-export default function Home() {
-  const artworks = getArtworks();
-  const workshops = getWorkshops();
-  const settings = getSettings();
+export default async function Home() {
+  const [artworks, workshops, settings] = await Promise.all([getArtworks(),getWorkshops(),getSettings()]);
   const structuredData = serializeStructuredData(buildStructuredData(settings, workshops));
   return <>
     <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: structuredData }} />

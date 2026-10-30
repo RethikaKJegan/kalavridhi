@@ -1,32 +1,14 @@
-import { NextResponse } from "next/server";
-import { readFileSync, writeFileSync } from "fs";
-import path from "path";
-
-const FILE = path.join(process.cwd(), "data", "artworks.json");
-
-function readArtworks() {
-  try { return JSON.parse(readFileSync(FILE, "utf-8")); }
-  catch { return []; }
+import { NextResponse } from 'next/server';
+import { readRecords,putRecord,removeRecord } from '@/lib/cms-local';
+export async function PUT(request:Request,{params}:{params:Promise<{id:string}>}){
+ const {id}=await params;
+ const current=(await readRecords<{id:string}>('artworks')).find(item=>item.id===id);
+ if(!current)return NextResponse.json({error:'Not found'},{status:404});
+ const body=await request.json();
+ const updated={...current,...body,id};
+ await putRecord('artworks',id,updated);
+ return NextResponse.json(updated);
 }
-function writeArtworks(data: unknown[]) {
-  writeFileSync(FILE, JSON.stringify(data, null, 2), "utf-8");
-}
-
-export async function PUT(request: Request, { params }: { params: Promise<{ id: string }> }) {
-  const { id } = await params;
-  const body = await request.json();
-  const artworks = readArtworks();
-  const idx = artworks.findIndex((a: { id: string }) => a.id === id);
-  if (idx === -1) return NextResponse.json({ error: "Not found" }, { status: 404 });
-  artworks[idx] = { ...artworks[idx], ...body };
-  writeArtworks(artworks);
-  return NextResponse.json(artworks[idx]);
-}
-
-export async function DELETE(_: Request, { params }: { params: Promise<{ id: string }> }) {
-  const { id } = await params;
-  const artworks = readArtworks();
-  const filtered = artworks.filter((a: { id: string }) => a.id !== id);
-  writeArtworks(filtered);
-  return NextResponse.json({ ok: true });
+export async function DELETE(_:Request,{params}:{params:Promise<{id:string}>}){
+ const {id}=await params;await removeRecord('artworks',id);return NextResponse.json({ok:true});
 }

@@ -1,15 +1,4 @@
-import { readFileSync } from "fs";
-import path from "path";
-
-const dataDir = path.join(process.cwd(), "data");
-
-function readJSON<T>(file: string, fallback: T): T {
-  try {
-    return JSON.parse(readFileSync(path.join(dataDir, file), "utf-8")) as T;
-  } catch {
-    return fallback;
-  }
-}
+import { readRecords } from '@/lib/cms-local';
 
 export interface Artwork {
   id: string; title: string; image: string; alt: string;
@@ -52,28 +41,28 @@ const defaultSettings: SiteSettings = {
   metaDescription: "Explore traditional and contemporary art classes and workshops with Nishkala Krishna at Kalavridhi Arts.",
 };
 
-export function getArtworks(): Artwork[] {
-  return readJSON<Artwork[]>("artworks.json", [])
+export async function getArtworks(): Promise<Artwork[]> {
+  return (await readRecords<Artwork>('artworks'))
     .filter(a => a.published)
     .sort((a, b) => a.sortOrder - b.sortOrder);
 }
 
-export function getAllArtworks(): Artwork[] {
-  return readJSON<Artwork[]>("artworks.json", [])
+export async function getAllArtworks(): Promise<Artwork[]> {
+  return (await readRecords<Artwork>('artworks'))
     .sort((a, b) => a.sortOrder - b.sortOrder);
 }
 
-export function getWorkshops(): Workshop[] {
-  return readJSON<Workshop[]>("workshops.json", [])
+export async function getWorkshops(): Promise<Workshop[]> {
+  return (await readRecords<Workshop>('workshops'))
     .filter(w => w.status === "published");
 }
 
-export function getAllWorkshops(): Workshop[] {
-  return readJSON<Workshop[]>("workshops.json", []);
+export async function getAllWorkshops(): Promise<Workshop[]> {
+  return readRecords<Workshop>('workshops');
 }
 
-export function getSettings(): SiteSettings {
-  return { ...defaultSettings, ...readJSON<Partial<SiteSettings>>("site-settings.json", {}) };
+export async function getSettings(): Promise<SiteSettings> {
+  return { ...defaultSettings, ...(await readRecords<Partial<SiteSettings>>('site-settings'))[0] };
 }
 
 export function waLink(whatsapp: string, msg: string) {

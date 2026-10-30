@@ -23,6 +23,13 @@ const STATUS_COLORS: Record<string, { bg: string; color: string }> = {
   completed: { bg: "rgba(37,140,167,.1)", color: "#258ca7" },
 };
 
+const F = ({ label, children }: { label: string; children: React.ReactNode }) => (
+  <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+    <label style={{ fontSize: "13px", fontWeight: 600, color: "rgba(32,36,59,.65)" }}>{label}</label>
+    {children}
+  </div>
+);
+
 export default function AdminWorkshops() {
   const [workshops, setWorkshops] = useState<Workshop[]>([]);
   const [loading, setLoading] = useState(true);
@@ -57,12 +64,7 @@ export default function AdminWorkshops() {
     showToast("Deleted."); fetch_();
   };
 
-  const F = ({ label, children }: { label: string; children: React.ReactNode }) => (
-    <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-      <label style={{ fontSize: "13px", fontWeight: 600, color: "rgba(32,36,59,.65)" }}>{label}</label>
-      {children}
-    </div>
-  );
+
 
   return (
     <div style={{ padding: "clamp(24px,4vw,40px)", position: "relative" }}>

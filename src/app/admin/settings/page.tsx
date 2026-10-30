@@ -9,6 +9,14 @@ interface Settings {
   enableEnquiryForm: boolean; metaDescription: string;
 }
 
+const F = ({ label, hint, children }: { label: string; hint?: string; children: React.ReactNode }) => (
+  <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+    <label style={{ fontSize: "13px", fontWeight: 600, color: "rgba(32,36,59,.65)" }}>{label}</label>
+    {hint && <p style={{ fontSize: "12px", color: "rgba(32,36,59,.4)", margin: 0 }}>{hint}</p>}
+    {children}
+  </div>
+);
+
 export default function AdminSettings() {
   const [form, setForm] = useState<Settings | null>(null);
   const [saving, setSaving] = useState(false);
@@ -45,13 +53,7 @@ export default function AdminSettings() {
 
   if (!form) return <div style={{ padding: "40px", textAlign: "center", color: "rgba(32,36,59,.4)" }}>Loading settings…</div>;
 
-  const F = ({ label, hint, children }: { label: string; hint?: string; children: React.ReactNode }) => (
-    <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-      <label style={{ fontSize: "13px", fontWeight: 600, color: "rgba(32,36,59,.65)" }}>{label}</label>
-      {hint && <p style={{ fontSize: "12px", color: "rgba(32,36,59,.4)", margin: 0 }}>{hint}</p>}
-      {children}
-    </div>
-  );
+
 
   const Section = ({ title, children }: { title: string; children: React.ReactNode }) => (
     <div className="admin-card" style={{ display: "flex", flexDirection: "column", gap: "20px" }}>

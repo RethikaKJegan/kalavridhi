@@ -1,0 +1,17 @@
+import { defineConfig } from "vite";
+import vinext from "vinext";
+import { cloudflare } from "@cloudflare/vite-plugin";
+import { fileURLToPath } from 'node:url';
+
+export default defineConfig({
+  resolve: { alias: { '@/lib/cms-local': fileURLToPath(new URL('./src/lib/cms-cloudflare.ts', import.meta.url)) } },
+  plugins: [
+    vinext(),
+    cloudflare({
+      viteEnvironment: {
+        name: "rsc",
+        childEnvironments: ["ssr"],
+      },
+    }),
+  ],
+});

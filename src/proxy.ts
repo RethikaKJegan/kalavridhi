@@ -3,6 +3,10 @@ import type { NextRequest } from "next/server";
 import { isValidAdminSession } from "@/lib/admin-auth";
 
 export function proxy(request: NextRequest) {
+  if(request.nextUrl.pathname.startsWith('/api/admin/') && !['GET','HEAD','OPTIONS'].includes(request.method)) {
+    const origin=request.headers.get('origin');
+    if(origin && origin!==request.nextUrl.origin)return NextResponse.json({error:'Invalid origin'},{status:403});
+  }
   const { pathname } = request.nextUrl;
   const isLogin = pathname === "/admin/login" || pathname === "/api/admin/auth/login";
   const isLogout = pathname === "/api/admin/auth/logout";

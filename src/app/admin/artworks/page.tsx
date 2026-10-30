@@ -2,6 +2,7 @@
 import { useEffect, useState, useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { prepareUpload } from "@/lib/prepare-upload";
 
 interface Artwork {
   id: string; title: string; image: string; alt: string;
@@ -21,6 +22,13 @@ const BLANK: Omit<Artwork, "id"> = {
   title: "", image: "", alt: "", medium: "", artForm: ART_FORMS[0],
   category: "Painting", description: "", featured: false, published: true, sortOrder: 0,
 };
+
+const F = ({ label, children }: { label: string; children: React.ReactNode }) => (
+  <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+    <label style={{ fontSize: "13px", fontWeight: 600, color: "rgba(32,36,59,.65)" }}>{label}</label>
+    {children}
+  </div>
+);
 
 export default function AdminArtworks() {
   const [artworks, setArtworks] = useState<Artwork[]>([]);
@@ -49,13 +57,15 @@ export default function AdminArtworks() {
     const file = e.target.files?.[0];
     if (!file) return;
     setUploading(true);
+    try {
     const fd = new FormData();
-    fd.append("file", file);
+    fd.append("file", await prepareUpload(file));
     const res = await fetch("/api/admin/upload", { method: "POST", body: fd });
     const data = await res.json();
     if (data.url) setForm(f => ({ ...f, image: data.url }));
     else showToast("Upload failed: " + (data.error || "unknown error"));
-    setUploading(false);
+    } catch (error) { showToast(error instanceof Error ? error.message : "Upload failed. Please retry."); }
+    finally { setUploading(false); }
   };
 
   const handleSave = async () => {
@@ -82,12 +92,7 @@ export default function AdminArtworks() {
     fetchArtworks();
   };
 
-  const F = ({ label, children }: { label: string; children: React.ReactNode }) => (
-    <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-      <label style={{ fontSize: "13px", fontWeight: 600, color: "rgba(32,36,59,.65)" }}>{label}</label>
-      {children}
-    </div>
-  );
+
 
   return (
     <div style={{ padding: "clamp(24px,4vw,40px)", position: "relative" }}>

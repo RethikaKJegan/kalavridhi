@@ -1,0 +1,33 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "kalavridhi",
+  "compatibility_date": "2026-10-30",
+  "compatibility_flags": [
+    "nodejs_compat"
+  ],
+  "main": "vinext/server/fetch-handler",
+  "assets": {
+    "directory": "dist/client",
+    "html_handling": "none",
+    "not_found_handling": "none",
+    "binding": "ASSETS",
+    "run_worker_first": [
+      "/*",
+      "!/_next/static/*",
+      "!/*/_next/static/*"
+    ]
+  },
+  "account_id": "c0787bee74f104bec12ac65f0c87b548",
+  "workers_dev": true,
+  "vars": {
+    "NODE_ENV": "production",
+    "NEXT_PUBLIC_SITE_URL": "https://kalavridhi.kalavridhi-arts.workers.dev"
+  },
+  "d1_databases": [
+    {
+      "binding": "CMS_DB",
+      "database_name": "kalavridhi-cms",
+      "database_id": "67974de2-a67d-498f-b9d5-9e96c33c0bcd"
+    }
+  ]
+}

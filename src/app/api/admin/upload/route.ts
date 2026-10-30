@@ -1,41 +1,14 @@
-import { NextResponse } from "next/server";
-import { writeFileSync, mkdirSync } from "fs";
-import path from "path";
-
-const UPLOAD_DIR = path.join(process.cwd(), "public", "images", "uploads");
-
-export async function POST(request: Request) {
-  try {
-    mkdirSync(UPLOAD_DIR, { recursive: true });
-
-    const formData = await request.formData();
-    const file = formData.get("file") as File | null;
-
-    if (!file) {
-      return NextResponse.json({ error: "No file provided" }, { status: 400 });
-    }
-
-    const allowedTypes = ["image/jpeg", "image/png", "image/webp", "image/gif"];
-    if (!allowedTypes.includes(file.type)) {
-      return NextResponse.json({ error: "Only image files are allowed (JPEG, PNG, WebP, GIF)" }, { status: 400 });
-    }
-
-    const MAX_SIZE = 10 * 1024 * 1024; // 10MB
-    if (file.size > MAX_SIZE) {
-      return NextResponse.json({ error: "File too large (max 10MB)" }, { status: 400 });
-    }
-
-    const ext = file.name.split(".").pop() || "jpg";
-    const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, "-");
-    const filename = `${Date.now()}-${safeName}`;
-    const filepath = path.join(UPLOAD_DIR, filename);
-
-    const buffer = Buffer.from(await file.arrayBuffer());
-    writeFileSync(filepath, buffer);
-
-    return NextResponse.json({ url: `/images/uploads/${filename}` });
-  } catch (err) {
-    console.error("Upload error:", err);
-    return NextResponse.json({ error: "Upload failed" }, { status: 500 });
-  }
+import { NextResponse } from 'next/server';
+import { saveUpload } from '@/lib/cms-local';
+export async function POST(request:Request) {
+ const file=(await request.formData()).get('file');
+ if(!(file instanceof File))return NextResponse.json({error:'Choose an image'},{status:400});
+ if(file.size>1_500_000)return NextResponse.json({error:'Please upload a compressed photo smaller than 1.5 MB'},{status:413});
+ const data=await file.arrayBuffer();const b=new Uint8Array(data);
+ const type=b[0]===255&&b[1]===216?'image/jpeg':b[0]===137&&b[1]===80&&b[2]===78&&b[3]===71?'image/png':String.fromCharCode(...b.slice(0,6)).startsWith('GIF8')?'image/gif':String.fromCharCode(...b.slice(0,4))==='RIFF'&&String.fromCharCode(...b.slice(8,12))==='WEBP'?'image/webp':null;
+ if(!type)return NextResponse.json({error:'Choose a valid JPEG, PNG, WebP or GIF image'},{status:400});
+ const ext=type==='image/jpeg'?'jpg':type.split('/')[1];
+ const name=crypto.randomUUID()+'.'+ext;
+ await saveUpload(name,type,data);
+ return NextResponse.json({url:'/images/uploads/'+name});
 }
