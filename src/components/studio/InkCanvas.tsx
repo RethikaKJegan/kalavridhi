@@ -24,8 +24,8 @@ void main(){
 }`;
 const display = `precision highp float; varying vec2 uv; uniform sampler2D dye;
 void main(){vec3 d=texture2D(dye,uv).rgb;float density=max(d.r,max(d.g,d.b));
-vec3 c=(d.r*vec3(.91,.12,.48)+d.g*vec3(.06,.65,.80)+d.b*vec3(.61,.24,.88))/(d.r+d.g+d.b+.0001);
-gl_FragColor=vec4(c,smoothstep(.015,.48,density)*.62);}`;
+vec3 c=(d.r*vec3(.94,.30,.52)+d.g*vec3(.10,.55,.85)+d.b*vec3(.96,.69,.16))/(d.r+d.g+d.b+.0001);
+gl_FragColor=vec4(c,smoothstep(.012,.43,density)*.75);}`;
 
 export default function InkCanvas() {
   const ref = useRef<HTMLCanvasElement>(null);
@@ -57,7 +57,8 @@ export default function InkCanvas() {
     const clearTargets = () => { targets.forEach(t => { gl.deleteTexture(t.texture); gl.deleteFramebuffer(t.frame); }); targets.length = 0; };
     const resize = () => {
       const rect = canvas.getBoundingClientRect(); if (!rect.width || !rect.height || lost) return;
-      width = Math.max(2, Math.round(Math.min(rect.width, 850))); height = Math.max(2, Math.round(width*rect.height/rect.width));
+      const scale = Math.min(1, 850 / Math.max(rect.width, rect.height));
+      width = Math.max(2, Math.round(rect.width * scale)); height = Math.max(2, Math.round(rect.height * scale));
       canvas.width = width; canvas.height = height; clearTargets();
       for (let i=0;i<2;i++) {
         const texture = gl.createTexture()!, target = gl.createFramebuffer()!;
@@ -74,6 +75,7 @@ export default function InkCanvas() {
       last = point[0]<0 ? [(event.clientX-r.left)/r.width,1-(event.clientY-r.top)/r.height] : point;
       point = [(event.clientX-r.left)/r.width,1-(event.clientY-r.top)/r.height]; movement = 1;
     };
+    const splat = (event: PointerEvent) => { const r=canvas.getBoundingClientRect(); if(event.clientX>=r.left&&event.clientX<=r.right&&event.clientY>=r.top&&event.clientY<=r.bottom){move(event);movement=2.5;} };
     const draw = (p: WebGLProgram, texture: WebGLTexture, target: WebGLFramebuffer|null) => {
       gl.useProgram(p); gl.bindFramebuffer(gl.FRAMEBUFFER,target); gl.viewport(0,0,width,height);
       gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D,texture); gl.uniform1i(gl.getUniformLocation(p,"dye"),0);
@@ -83,23 +85,23 @@ export default function InkCanvas() {
       frame = requestAnimationFrame(tick);
       if(lost || !visible || document.hidden || targets.length<2 || now-previous<30) return;
       previous=now; const time=now*.001;
-      const auto=[.19+Math.sin(time*.46)*.13,.52+Math.cos(time*.34)*.22];
+      const auto=[.24+Math.sin(time*.46)*.18,.53+Math.cos(time*.34)*.28];
       const current = movement>.02 ? point : auto, prior=movement>.02 ? last : auto;
       draw(sim,targets[0].texture,targets[1].frame);
       gl.uniform2f(gl.getUniformLocation(sim,"pixel"),1/width,1/height);
       gl.uniform2f(gl.getUniformLocation(sim,"point"),current[0],current[1]);
       gl.uniform2f(gl.getUniformLocation(sim,"last"),prior[0],prior[1]);
       gl.uniform1f(gl.getUniformLocation(sim,"time"),time); gl.uniform1f(gl.getUniformLocation(sim,"aspect"),width/height);
-      gl.uniform1f(gl.getUniformLocation(sim,"active"),movement>.02 ? movement : .24);
+      gl.uniform1f(gl.getUniformLocation(sim,"active"),movement>.02 ? movement : .38);
       gl.uniform1f(gl.getUniformLocation(sim,"seed"),time*.55); gl.drawArrays(gl.TRIANGLES,0,6);
       draw(out,targets[1].texture,null); gl.drawArrays(gl.TRIANGLES,0,6); targets.reverse(); movement*=.87; last=point;
     };
     const contextLost = (e: Event) => { e.preventDefault(); lost=true; };
     const observer=new IntersectionObserver(([entry])=>{visible=entry.isIntersecting;}); observer.observe(canvas);
     const ro=new ResizeObserver(resize); ro.observe(canvas);
-    canvas.addEventListener("webglcontextlost",contextLost); window.addEventListener("pointermove",move,{passive:true});
+    canvas.addEventListener("webglcontextlost",contextLost); window.addEventListener("pointermove",move,{passive:true}); window.addEventListener("pointerdown",splat,{passive:true});
     resize(); frame=requestAnimationFrame(tick);
-    return () => { cancelAnimationFrame(frame); observer.disconnect(); ro.disconnect(); window.removeEventListener("pointermove",move); canvas.removeEventListener("webglcontextlost",contextLost); clearTargets(); gl.deleteBuffer(buffer); programs.forEach(p=>gl.deleteProgram(p)); shaders.forEach(s=>gl.deleteShader(s)); };
+    return () => { cancelAnimationFrame(frame); observer.disconnect(); ro.disconnect(); window.removeEventListener("pointermove",move); window.removeEventListener("pointerdown",splat); canvas.removeEventListener("webglcontextlost",contextLost); clearTargets(); gl.deleteBuffer(buffer); programs.forEach(p=>gl.deleteProgram(p)); shaders.forEach(s=>gl.deleteShader(s)); };
   }, []);
   return <canvas ref={ref} className="kv-ink" aria-hidden="true" />;
 }
