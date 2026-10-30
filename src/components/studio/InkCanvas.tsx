@@ -20,13 +20,13 @@ void main(){
  float d=length(pa-ba*h);float splat=exp(-d*d/.0019)*(.52+.48*noise(p*49.+time*.27))*active;
  float shade=mod(floor(seed),4.);
  vec3 colour=shade<1.?vec3(1.,.08,.04):shade<2.?vec3(.05,1.,.08):shade<3.?vec3(.08,.08,1.):vec3(.62,.32,.74);
- ink+=colour*splat*.27;
+ ink+=colour*splat*.34;
  gl_FragColor=vec4(clamp(ink,0.,1.),1.);
 }`;
-const display = `precision highp float; varying vec2 uv; uniform sampler2D dye;
+const display = `precision highp float; varying vec2 uv; uniform sampler2D dye; uniform float strength;
 void main(){vec3 d=texture2D(dye,uv).rgb;float density=max(d.r,max(d.g,d.b));
 vec3 c=(d.r*vec3(.94,.30,.52)+d.g*vec3(.10,.55,.85)+d.b*vec3(.96,.69,.16))/(d.r+d.g+d.b+.0001);
-gl_FragColor=vec4(c,smoothstep(.018,.52,density)*.60);}`;
+gl_FragColor=vec4(c,smoothstep(.018,.52,density)*strength);}`;
 
 export default function InkCanvas() {
   const ref = useRef<HTMLCanvasElement>(null);
@@ -74,7 +74,7 @@ export default function InkCanvas() {
       const r = canvas.getBoundingClientRect();
       if(event.clientY<r.top || event.clientY>r.bottom || event.clientX<r.left || event.clientX>r.right) return;
       last = point[0]<0 ? [(event.clientX-r.left)/r.width,1-(event.clientY-r.top)/r.height] : point;
-      point = [(event.clientX-r.left)/r.width,1-(event.clientY-r.top)/r.height]; movement = 1.55;
+      point = [(event.clientX-r.left)/r.width,1-(event.clientY-r.top)/r.height]; movement = 1.9;
     };
     const splat = (event: PointerEvent) => { const r=canvas.getBoundingClientRect(); if(event.clientX>=r.left&&event.clientX<=r.right&&event.clientY>=r.top&&event.clientY<=r.bottom){move(event);movement=4.1;} };
     const draw = (p: WebGLProgram, texture: WebGLTexture, target: WebGLFramebuffer|null) => {
@@ -89,14 +89,15 @@ export default function InkCanvas() {
       const lane=Math.floor(time/7)%4;
       const auto=[lane%2===0?.95+Math.sin(time*.31)*.025:.05+Math.sin(time*.27)*.025,.43+Math.cos(time*.28+lane)*.27];
       const current = movement>.02 ? point : auto, prior=movement>.02 ? last : auto;
+      const hero=canvas.classList.contains("kv-ink-hero");
       draw(sim,targets[0].texture,targets[1].frame);
       gl.uniform2f(gl.getUniformLocation(sim,"pixel"),1/width,1/height);
       gl.uniform2f(gl.getUniformLocation(sim,"point"),current[0],current[1]);
       gl.uniform2f(gl.getUniformLocation(sim,"last"),prior[0],prior[1]);
       gl.uniform1f(gl.getUniformLocation(sim,"time"),time); gl.uniform1f(gl.getUniformLocation(sim,"aspect"),width/height);
-      gl.uniform1f(gl.getUniformLocation(sim,"active"),movement>.02 ? movement : .30);
+      gl.uniform1f(gl.getUniformLocation(sim,"active"),movement>.02 ? movement*(hero?1.2:1) : hero ? 0.44 : 0.30);
       gl.uniform1f(gl.getUniformLocation(sim,"seed"),time*.24); gl.drawArrays(gl.TRIANGLES,0,6);
-      draw(out,targets[1].texture,null); gl.drawArrays(gl.TRIANGLES,0,6); targets.reverse(); movement*=.82; last=point;
+      draw(out,targets[1].texture,null); gl.uniform1f(gl.getUniformLocation(out,"strength"),hero ? 0.84 : 0.60); gl.drawArrays(gl.TRIANGLES,0,6); targets.reverse(); movement*=.86; last=point;
     };
     const contextLost = (e: Event) => { e.preventDefault(); lost=true; };
     const ro=new ResizeObserver(resize); ro.observe(canvas);

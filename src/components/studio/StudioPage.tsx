@@ -132,7 +132,7 @@ export default function StudioPage({artworks, workshops, settings}: {artworks: A
       </section>
 
       <section id="about" className="kv-about kv-shell kv-space">
-        <div className="kv-about-visual kv-reveal"><div className="kv-portrait"><Image src="/images/founder/nishkala-fabric-hoop.jpeg" alt="Nishkala Krishna holding her hand-painted peacock fabric artwork" fill sizes="(max-width: 760px) 90vw, 40vw"/></div><div className="kv-experience"><strong>{settings.yearsExperience}<span>+</span></strong><span>YEARS OF ART,<br/>HEART & CURIOSITY</span></div><span className="kv-image-note">NISHKALA KRISHNA · ARTIST & EDUCATOR</span></div>
+        <div className="kv-about-visual kv-reveal"><div className="kv-portrait"><Image src="/images/founder/meet-nishkala.jpg" alt="Nishkala Krishna standing among her colourful paintings" fill sizes="(max-width: 760px) 90vw, 40vw"/></div><div className="kv-experience"><strong>{settings.yearsExperience}<span>+</span></strong><span>YEARS OF ART,<br/>HEART & CURIOSITY</span></div><span className="kv-image-note">NISHKALA KRISHNA · ARTIST & EDUCATOR</span></div>
         <div className="kv-about-copy kv-reveal"><Eyebrow>The heart behind the art</Eyebrow><h2>Meet <strong>{settings.founderName}.</strong></h2><p className="kv-about-deck">Art is a skill. And a little bit of finding yourself.</p><p>{settings.shortBio}</p><div className="kv-qualifications">{settings.qualifications.map(q=><span key={q}>{q}</span>)}</div><div className="kv-about-links"><Pill onClick={()=>enquire()}>Meet your creative side</Pill><a href={settings.instagram} target="_blank" rel="noopener noreferrer" className="kv-icon" aria-label="Kalavridhi on Instagram"><Camera size={20}/></a></div></div>
       </section>
 
