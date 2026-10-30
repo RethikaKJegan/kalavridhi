@@ -148,6 +148,13 @@
 .kv-moments-controls button:focus-visible { outline: 3px solid #cf8fa8; outline-offset: 3px; }
 @media (max-width: 900px) { .kv-moment-track { grid-template-columns: repeat(2,minmax(0,1fr)); gap: 12px; } .kv-moment-card { border-radius: 13px; } .kv-moment-photo { height: clamp(155px,32vw,230px); } .kv-moment-type { left: 8px; bottom: 8px; padding: 6px 8px; font-size: 7px; } .kv-moment-index { top: 8px; right: 8px; width: 25px; height: 25px; } }
 @media (max-width: 520px) { .kv-moment-track { grid-template-columns: 1fr; gap: 9px; } .kv-moment-photo { height: clamp(210px,64vw,340px); } }
+
+/* Let Nishkala's painting moment fill the hero, with a soft reading wash for the copy. */
+.kv-hero-photo { inset: 0; z-index: -4; border-radius: 0; box-shadow: none; }
+.kv-hero-photo img { object-position: 50% 29%; filter: saturate(1.08); }
+.kv-hero-photo::after { display: none; }
+.kv-hero-wash { z-index: -3; background: linear-gradient(90deg,#fbfaf7 0%,#fbfaf7f5 28%,#fbfaf7d9 47%,#fbfaf760 66%,#fbfaf700 86%),linear-gradient(0deg,#fbfaf78c 0%,transparent 23%,transparent 83%,#fbfaf73d 100%); }
+.kv-hero-aside { position: relative; z-index: 3; }
 .kv-recognition { position: relative; }
 .kv-recognition::before { content: ''; position: absolute; z-index: -1; left: -7%; bottom: 5%; width: 45%; height: 65%; background: radial-gradient(ellipse,#f6dbeba6,transparent 68%); pointer-events: none; }
 
@@ -157,6 +164,9 @@
   .kv-art-story h3 { font-size: clamp(32px, 3.4vw, 45px); }
 }
 @media (max-width: 760px) {
+  .kv-hero-photo { inset: 0; border-radius: 0; box-shadow: none; }
+  .kv-hero-photo img { object-position: 50% 30%; }
+  .kv-hero-wash { background: linear-gradient(180deg,#fbfaf7 0%,#fbfaf7ed 38%,#fbfaf7b8 56%,#fbfaf74a 100%); }
   .kv-studio > .kv-ink { opacity: .48; }
   .kv-studio > .kv-ink.kv-ink-hero { opacity: .82; }
   .kv-about-copy h2 strong { font-size: clamp(42px, 10.5vw, 65px); }
