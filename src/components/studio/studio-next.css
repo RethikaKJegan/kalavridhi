@@ -130,6 +130,28 @@
 
 .kv-workshops { position: relative; }
 .kv-workshops::before { content: ''; position: absolute; z-index: -1; top: 7%; right: -5%; width: 55%; height: 48%; background: radial-gradient(ellipse,#d7eaf9a8,transparent 66%); pointer-events: none; }
+.kv-moments { --moments-ink: #fffdf8; position: relative; padding: 20px; border: 1px solid #dce2ed; border-radius: 24px; background: linear-gradient(135deg,#ffffffed,#f4f1f8ed); box-shadow: 0 22px 65px #24385a12; }
+.kv-moments-heading { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 0 2px 16px; }
+.kv-moments-tabs { display: flex; gap: 8px; }
+.kv-moments-tabs button { padding: 10px 17px; border: 1px solid #d5dbea !important; border-radius: 999px; background: #fffdf9; color: #55637c; font-size: 11px !important; transition: color .2s, background .2s, border-color .2s; }
+.kv-moments-tabs button.is-active { border-color: #263b69 !important; background: #263b69; color: white; }
+.kv-moments-heading>span { display: flex; align-items: center; gap: 9px; color: #61718a; font-size: 11px; font-variant-numeric: tabular-nums; }
+.kv-moments-heading>span i { width: 27px; height: 1px; background: #b8c4d6; transform: rotate(-25deg); }
+.kv-moments-frame { position: relative; isolation: isolate; height: clamp(350px,53vw,650px); overflow: hidden; border-radius: 15px; background: #e9eaf0; }
+.kv-moments-frame::after { content: ''; position: absolute; inset: 35% 0 0; z-index: 0; pointer-events: none; background: linear-gradient(0deg,#111a29c9,transparent); }
+.kv-moments-frame>img { object-fit: cover; animation: kv-moment-enter .65s cubic-bezier(.18,.7,.2,1) both; }
+@keyframes kv-moment-enter { from { opacity: .6; transform: scale(1.025); } to { opacity: 1; transform: scale(1); } }
+.kv-moments-caption { position: absolute; z-index: 1; left: clamp(20px,4vw,48px); bottom: clamp(23px,4vw,44px); display: grid; gap: 10px; max-width: min(660px,72%); color: white; text-shadow: 0 2px 20px #1118; }
+.kv-moments-caption>span { color: #ffe1ad; font-size: 9px; letter-spacing: .16em; font-weight: 650; }
+.kv-moments-caption strong { font-size: clamp(22px,3.2vw,43px); line-height: 1.1; letter-spacing: -.045em; font-weight: 530; }
+.kv-moments-controls { position: absolute; z-index: 2; right: clamp(18px,3vw,36px); bottom: clamp(20px,3vw,34px); display: flex; gap: 9px; }
+.kv-moments-controls button { display: grid; place-items: center; width: 46px; height: 46px; border: 1px solid #fff9 !important; border-radius: 50%; color: white; background: #17223962; backdrop-filter: blur(9px); transition: background .2s, transform .2s; }
+.kv-moments-controls button:hover { background: #172239c9; transform: translateY(-2px); }
+.kv-moments-dots { display: flex; justify-content: center; gap: 8px; padding-top: 17px; }
+.kv-moments-dots button { width: 8px; height: 8px; padding: 0; border: 0 !important; border-radius: 50%; background: #c8cfdb; transition: width .25s, background .25s; }
+.kv-moments-dots button.is-active { width: 27px; border-radius: 8px; background: #bd6d8e; }
+.kv-moments-note { margin: 10px 0 0; color: #768198; text-align: center; font-size: 9px; letter-spacing: .025em; }
+.kv-moments button:focus-visible { outline: 3px solid #cf8fa8; outline-offset: 3px; }
 .kv-recognition { position: relative; }
 .kv-recognition::before { content: ''; position: absolute; z-index: -1; left: -7%; bottom: 5%; width: 45%; height: 65%; background: radial-gradient(ellipse,#f6dbeba6,transparent 68%); pointer-events: none; }
 
@@ -157,6 +179,17 @@
   .kv-art-description { margin: 13px 0 18px; font-size: 12px; }
   .kv-art-pagination { padding-top: 25px; }
   .kv-art-hint { font-size: 9px; }
+  .kv-moments { padding: 11px; border-radius: 18px; }
+  .kv-moments-heading { padding: 2px 2px 12px; }
+  .kv-moments-tabs button { padding: 9px 13px; font-size: 10px !important; }
+  .kv-moments-frame { height: clamp(320px,112vw,520px); border-radius: 12px; }
+  .kv-moments-frame>img { object-position: center; }
+  .kv-moments-caption { left: 17px; bottom: 20px; max-width: 76%; gap: 7px; }
+  .kv-moments-caption strong { font-size: clamp(20px,5.6vw,30px); }
+  .kv-moments-controls { right: 12px; bottom: 13px; gap: 6px; }
+  .kv-moments-controls button { width: 38px; height: 38px; }
+  .kv-moments-dots { padding-top: 13px; }
+  .kv-moments-note { font-size: 8px; }
 }
 @media (max-width: 430px) {
   .kv-art-stage { min-height: 335px; }
@@ -167,4 +200,5 @@
   .kv-studio > .kv-ink { display: none; }
   .kv-art-enter-next,.kv-art-enter-previous,.kv-art-story h3 { animation: none; }
   .kv-art-sheet,.kv-art-next-sheet { transform: none; }
+  .kv-moments-frame>img { animation: none; }
 }

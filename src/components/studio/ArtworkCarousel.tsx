@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useRef, useState, type CSSProperties, type TouchEvent } from "react";
+import { useEffect, useRef, useState, type CSSProperties, type TouchEvent } from "react";
 import { ArrowLeft, ArrowRight, ArrowUpRight } from "lucide-react";
 import type { Artwork } from "@/lib/server-data";
 
@@ -27,19 +27,39 @@ const fallbackColours: Record<string, [string, string, string]> = {
 export default function ArtworkCarousel({ artworks, onOpen }: { artworks: Artwork[]; onOpen: (artwork: Artwork) => void }) {
   const [index, setIndex] = useState(0);
   const [direction, setDirection] = useState<1 | -1>(1);
+  const [isVisible, setIsVisible] = useState(false);
+  const carouselRef = useRef<HTMLDivElement>(null);
   const start = useRef<{ x: number; y: number } | null>(null);
   const swiped = useRef(false);
+  const resumeAt = useRef(0);
   const total = artworks.length;
   const active = artworks[index];
   const next = artworks[(index + 1) % total];
   const colours = active ? artworkColours[active.id] ?? fallbackColours[active.category] ?? fallbackColours.Painting : fallbackColours.Painting;
   const palette = { "--gallery-wash": colours[0], "--gallery-highlight": colours[1], "--gallery-accent": colours[2] } as CSSProperties;
 
-  const go = (step: 1 | -1) => {
+  const go = (step: 1 | -1, interactionTime?: number) => {
     if (total < 2) return;
+    if (interactionTime !== undefined) resumeAt.current = interactionTime + 60_000;
     setDirection(step);
     setIndex(current => (current + step + total) % total);
   };
+  useEffect(() => {
+    const node = carouselRef.current;
+    if (!node) return;
+    const observer = new IntersectionObserver(([entry]) => setIsVisible(entry.isIntersecting), { threshold: 0.2 });
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, []);
+  useEffect(() => {
+    if (!isVisible || total < 2 || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const timer = window.setInterval(() => {
+      if (document.hidden || performance.now() < resumeAt.current) return;
+      setDirection(1);
+      setIndex(current => (current + 1) % total);
+    }, 2500);
+    return () => window.clearInterval(timer);
+  }, [isVisible, total]);
   const onTouchStart = (event: TouchEvent<HTMLDivElement>) => {
     const touch = event.touches[0];
     if (touch) start.current = { x: touch.clientX, y: touch.clientY };
@@ -52,19 +72,19 @@ export default function ArtworkCarousel({ artworks, onOpen }: { artworks: Artwor
     start.current = null;
     if (Math.abs(dx) < 45 || Math.abs(dx) < Math.abs(dy) * 1.2) return;
     swiped.current = true;
-    go(dx < 0 ? 1 : -1);
+    go(dx < 0 ? 1 : -1, event.timeStamp);
     window.setTimeout(() => { swiped.current = false; }, 350);
   };
   if (!active) return <p className="kv-empty">New work is on its way. Explore another category.</p>;
 
-  return <div className="kv-art-carousel kv-reveal" style={palette} role="region" aria-roledescription="carousel" aria-label="Selected artworks" tabIndex={0}
-    onKeyDown={event => { if (event.key === "ArrowRight") { event.preventDefault(); go(1); } else if (event.key === "ArrowLeft") { event.preventDefault(); go(-1); } }}>
+  return <div ref={carouselRef} className="kv-art-carousel kv-reveal" style={palette} role="region" aria-roledescription="carousel" aria-label="Selected artworks" tabIndex={0}
+    onKeyDown={event => { if (event.key === "ArrowRight") { event.preventDefault(); go(1, event.timeStamp); } else if (event.key === "ArrowLeft") { event.preventDefault(); go(-1, event.timeStamp); } }}>
     <div className="kv-art-stage" onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}>
       <div className="kv-art-ambient" aria-hidden="true" />
-      {total > 1 && <button className="kv-art-next-sheet" onClick={() => go(1)} aria-label={`Next artwork: ${next.title}`} tabIndex={-1}>
+      {total > 1 && <button className="kv-art-next-sheet" onClick={event => go(1, event.timeStamp)} aria-label={`Next artwork: ${next.title}`} tabIndex={-1}>
         <Image src={next.image} alt="" fill sizes="(max-width: 760px) 75vw, 450px" />
       </button>}
-      <button key={active.id} className={`kv-art-sheet kv-art-enter-${direction === 1 ? "next" : "previous"}`} onClick={() => { if (!swiped.current) onOpen(active); }} aria-label={`View ${active.title}`}>
+      <button key={active.id} className={`kv-art-sheet kv-art-enter-${direction === 1 ? "next" : "previous"}`} onClick={event => { if (!swiped.current) { resumeAt.current = event.timeStamp + 60_000; onOpen(active); } }} aria-label={`View ${active.title}`}>
         <span className="kv-art-sheet-top"><span>FROM NISHKALA&apos;S STUDIO</span><span>{String(index + 1).padStart(2, "0")} / {String(total).padStart(2, "0")}</span></span>
         <span className="kv-art-sheet-image"><Image src={active.image} alt={active.alt} fill sizes="(max-width: 760px) 85vw, 630px" priority={index === 0} /></span>
         <span className="kv-art-sheet-bottom"><span>{active.artForm}</span><ArrowUpRight size={19} /></span>
@@ -75,8 +95,8 @@ export default function ArtworkCarousel({ artworks, onOpen }: { artworks: Artwor
       <h3 key={active.id}>{active.title}</h3>
       <p className="kv-art-medium">{active.medium || active.artForm}</p>
       {active.description && <p className="kv-art-description">{active.description}</p>}
-      <button className="kv-art-open" onClick={() => onOpen(active)}>View artwork <ArrowUpRight size={18} /></button>
-      <div className="kv-art-pagination"><div><button onClick={() => go(-1)} disabled={total < 2} aria-label="Previous artwork"><ArrowLeft size={20} /></button><button onClick={() => go(1)} disabled={total < 2} aria-label="Next artwork"><ArrowRight size={20} /></button></div><span>{String(index + 1).padStart(2, "0")} <i /> {String(total).padStart(2, "0")}</span></div>
+      <button className="kv-art-open" onClick={event => { resumeAt.current = event.timeStamp + 60_000; onOpen(active); }}>View artwork <ArrowUpRight size={18} /></button>
+      <div className="kv-art-pagination"><div><button onClick={event => go(-1, event.timeStamp)} disabled={total < 2} aria-label="Previous artwork"><ArrowLeft size={20} /></button><button onClick={event => go(1, event.timeStamp)} disabled={total < 2} aria-label="Next artwork"><ArrowRight size={20} /></button></div><span>{String(index + 1).padStart(2, "0")} <i /> {String(total).padStart(2, "0")}</span></div>
       <div className="kv-art-progress" aria-hidden="true"><span style={{ width: `${((index + 1) / total) * 100}%` }} /></div>
       <p className="kv-art-hint">Use the arrows or swipe to explore.</p>
     </div>

@@ -9,6 +9,7 @@ import { ART_FORMS, RECOGNITION } from "@/lib/data";
 import InkCanvas from "./InkCanvas";
 import BrushGuide from "./BrushGuide";
 import ArtworkCarousel from "./ArtworkCarousel";
+import WorkshopGallery from "./WorkshopGallery";
 import "./studio.css";
 import "./studio-refresh.css";
 import "./studio-next.css";
@@ -113,7 +114,7 @@ export default function StudioPage({artworks, workshops, settings}: {artworks: A
 
     <main id="main">
       <section id="home" className="kv-hero" aria-labelledby="kv-hero-title">
-        <div className="kv-hero-photo"><Image src="/images/founder/nishkala-at-desk.jpeg" alt="Nishkala Krishna in her art studio" fill sizes="(max-width: 760px) 100vw, 55vw" preload /></div>
+        <div className="kv-hero-photo"><Image src="/images/founder/nishkala-hero.jpeg" alt="Nishkala Krishna painting a traditional artwork" fill sizes="(max-width: 760px) 100vw, 55vw" preload /></div>
         <div className="kv-hero-wash" aria-hidden="true"/>
         <div className="kv-hero-content kv-shell">
           <div className="kv-hero-copy"><Eyebrow>A space to learn. A world to create.</Eyebrow>
@@ -141,8 +142,8 @@ export default function StudioPage({artworks, workshops, settings}: {artworks: A
         <ArtworkCarousel key={filter} artworks={collection} onOpen={a=>setLightbox(a)} />
       </section>
 
-      <section id="workshops" className="kv-workshops kv-shell kv-space"><div className="kv-section-top kv-reveal"><div><Eyebrow>A little time. Something beautiful.</Eyebrow><h2>Come for the art.<br/><span className="kv-muted">Stay for the joy.</span></h2></div><Pill outline onClick={()=>enquire("Upcoming workshops")}>Find your next workshop</Pill></div>
-        <div className="kv-workshop-grid kv-reveal">{[{image:"workshop-adult-butterfly.jpeg",alt:"Women holding their completed butterfly fabric hoop paintings",title:"New skills. Shared smiles.",label:"ADULT WORKSHOPS"},{image:"workshop-fabric-hoop-kids.jpg",alt:"Children and teens painting flower hoops together",title:"Small hands. Big imaginations.",label:"CHILDREN'S SESSIONS"},{image:"workshop-adult-fabric.jpeg",alt:"Participants painting fabric together during a workshop",title:"A moment to make your own.",label:"CREATIVE EXPERIENCES"}].map(w=><div className="kv-workshop-photo" key={w.image}><Image src={`/images/workshop/${w.image}`} alt={w.alt} fill sizes="(max-width: 760px) 85vw, 30vw"/><div><span className="kv-micro">{w.label}</span><h3>{w.title}</h3></div></div>)}</div>
+      <section id="workshops" className="kv-workshops kv-shell kv-space"><div className="kv-section-top kv-reveal"><div><Eyebrow>A little time. Something beautiful.</Eyebrow><h2>Workshops &amp; exhibitions.<br/><span className="kv-muted">Art shared together.</span></h2></div><Pill outline onClick={()=>enquire("Upcoming workshops")}>Find your next workshop</Pill></div>
+        <WorkshopGallery />
         <div id="upcoming-classes" className="kv-upcoming kv-reveal"><div><span className="kv-live-dot"/><span className="kv-micro">NEXT AT THE STUDIO</span></div>{workshops.length ? <div className="kv-session-list">{workshops.map(w=><div key={w.id}><h3>{w.title}</h3><p>{w.description}</p>{w.startAt&&<span>{new Intl.DateTimeFormat("en-IN",{dateStyle:"medium",timeZone:w.timezone||"Asia/Kolkata"}).format(new Date(w.startAt))}{w.location?` · ${w.location}`:""}</span>}{w.registrationOpen?<Pill onClick={()=>enquire(w.title)}>Enquire about this session</Pill>:<span className="kv-tag">Registration closed</span>}</div>)}</div>:<><div><h3>Your next creative adventure is on its way.</h3><p>New batches and workshops are announced on WhatsApp and Instagram.</p></div><button className="kv-text-link" onClick={()=>enquire("The next class or workshop batch")}>Ask about the next batch <ArrowUpRight size={18}/></button></>}</div>
       </section>
 
