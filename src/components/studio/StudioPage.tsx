@@ -8,10 +8,12 @@ import type { Artwork, SiteSettings, Workshop } from "@/lib/server-data";
 import { ART_FORMS, RECOGNITION } from "@/lib/data";
 import InkCanvas from "./InkCanvas";
 import BrushGuide from "./BrushGuide";
+import ArtworkCarousel from "./ArtworkCarousel";
 import "./studio.css";
 import "./studio-refresh.css";
+import "./studio-next.css";
 
-const navigation = [["The studio", "about"], ["Selected work", "gallery"], ["Art classes", "art-forms"], ["Workshops", "workshops"]];
+const navigation = [["The studio", "about"], ["Selected work", "gallery"], ["Workshops", "workshops"]];
 const categories = ["All", "Traditional", "Painting", "Drawing & Patterns", "Fabric & Crafts", "Kids"];
 
 function Eyebrow({ children, light = false }: { children: ReactNode; light?: boolean }) {
@@ -49,7 +51,7 @@ function Modal({ children, title, close, wide = false }: { children: ReactNode; 
 export default function StudioPage({artworks, workshops, settings}: {artworks: Artwork[];workshops: Workshop[];settings: SiteSettings}) {
   const [overlay,setOverlay]=useState<"menu"|"enquiry"|null>(null);
   const [lightbox,setLightbox]=useState<{image:string;alt:string;title:string;description?:string}|null>(null);
-  const [filter,setFilter]=useState("All"),[expanded,setExpanded]=useState(false);
+  const [filter,setFilter]=useState("All");
   const [featured,setFeatured]=useState(0);
   const [interest,setInterest]=useState("Art classes");
   const [enquiryLink,setEnquiryLink]=useState("");
@@ -61,7 +63,6 @@ export default function StudioPage({artworks, workshops, settings}: {artworks: A
   const wa=(message: string)=>`https://wa.me/${settings.whatsapp.replace(/\D/g,"")}?text=${encodeURIComponent(message)}`;
   const enquire=(value="Art classes")=>{setInterest(value);setEnquiryLink("");setOverlay("enquiry");};
   const collection=artworks.filter(a=>filter==="All"||a.category===filter);
-  const displayed=expanded?collection:collection.slice(0,4);
   const art=artworks[featured%Math.max(artworks.length,1)];
 
   useEffect(()=>{
@@ -91,7 +92,7 @@ export default function StudioPage({artworks, workshops, settings}: {artworks: A
     root.classList.add("kv-motion");
     const observer=new IntersectionObserver(entries=>entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add("kv-visible");observer.unobserve(e.target);}}),{threshold:.08});
     root.querySelectorAll(".kv-reveal").forEach(el=>observer.observe(el));return()=>observer.disconnect();
-  },[expanded,filter]);
+  },[filter]);
 
   const submit=(event:FormEvent<HTMLFormElement>)=>{
     event.preventDefault();const data=new FormData(event.currentTarget);
@@ -99,6 +100,7 @@ export default function StudioPage({artworks, workshops, settings}: {artworks: A
   };
 
   return <div className={`kv-studio${!intro ? " kv-ready" : ""}`}>
+    <InkCanvas/>
     <BrushGuide />
     {intro&&<div className={`kv-intro${introOut?" kv-intro-out":""}`} aria-hidden="true"><div><Sparkles size={27}/><strong>Kalavridhi<span>Grow your dream.</span></strong></div><p>A little colour. Endless possibilities.</p><div className="kv-intro-track"><i style={{width:`${progress}%`}}/></div><div className="kv-intro-count"><span>ENTERING THE STUDIO</span><span>{String(progress).padStart(3,"0")}</span></div></div>}
     <div id="kv-content">
@@ -113,12 +115,11 @@ export default function StudioPage({artworks, workshops, settings}: {artworks: A
       <section id="home" className="kv-hero" aria-labelledby="kv-hero-title">
         <div className="kv-hero-photo"><Image src="/images/founder/nishkala-at-desk.jpeg" alt="Nishkala Krishna in her art studio" fill sizes="(max-width: 760px) 100vw, 55vw" preload /></div>
         <div className="kv-hero-wash" aria-hidden="true"/>
-        <InkCanvas/>
         <div className="kv-hero-content kv-shell">
           <div className="kv-hero-copy"><Eyebrow>A space to learn. A world to create.</Eyebrow>
             <h1 id="kv-hero-title">{settings.heroHeading==="Where Creativity Blooms." ? <><span>Where</span><span>creativity</span><span className="kv-colour-word">blooms.</span></> : <span>{settings.heroHeading}</span>}</h1>
             <p className="kv-hero-description">{settings.heroSubheading}</p>
-            <div className="kv-hero-actions"><Pill href="#art-forms">Explore art classes</Pill><button className="kv-text-link" onClick={()=>enquire()}>Let&apos;s talk <ArrowUpRight size={18}/></button></div>
+            <div className="kv-hero-actions"><Pill href="#gallery">Explore the artwork</Pill><button className="kv-text-link" onClick={()=>enquire()}>Let&apos;s talk <ArrowUpRight size={18}/></button></div>
             <p className="kv-hero-note"><span className="kv-avatar"><Image src="/images/founder/nishkala-blue-painting.jpeg" alt="" fill sizes="36px"/></span>Led by {settings.founderName}<span className="kv-note-dot"/>{settings.yearsExperience} years of artistic experience</p>
           </div>
           <div className="kv-hero-aside"><span className="kv-photo-caption">THE ARTIST, IN HER ELEMENT.<br/><span>Real hands. Real art. Your next beginning.</span></span>
@@ -131,21 +132,13 @@ export default function StudioPage({artworks, workshops, settings}: {artworks: A
 
       <section id="about" className="kv-about kv-shell kv-space">
         <div className="kv-about-visual kv-reveal"><div className="kv-portrait"><Image src="/images/founder/nishkala-fabric-hoop.jpeg" alt="Nishkala Krishna holding her hand-painted peacock fabric artwork" fill sizes="(max-width: 760px) 90vw, 40vw"/></div><div className="kv-experience"><strong>{settings.yearsExperience}<span>+</span></strong><span>YEARS OF ART,<br/>HEART & CURIOSITY</span></div><span className="kv-image-note">NISHKALA KRISHNA · ARTIST & EDUCATOR</span></div>
-        <div className="kv-about-copy kv-reveal"><Eyebrow>The heart behind the art</Eyebrow><h2>Art is a skill.<br/><span className="kv-muted">And a little bit<br/>of finding yourself.</span></h2><p>{settings.shortBio}</p><div className="kv-qualifications">{settings.qualifications.map(q=><span key={q}>{q}</span>)}</div><div className="kv-about-links"><Pill onClick={()=>enquire()}>Meet your creative side</Pill><a href={settings.instagram} target="_blank" rel="noopener noreferrer" className="kv-icon" aria-label="Kalavridhi on Instagram"><Camera size={20}/></a></div></div>
+        <div className="kv-about-copy kv-reveal"><Eyebrow>The heart behind the art</Eyebrow><h2>Meet <strong>{settings.founderName}.</strong></h2><p className="kv-about-deck">Art is a skill. And a little bit of finding yourself.</p><p>{settings.shortBio}</p><div className="kv-qualifications">{settings.qualifications.map(q=><span key={q}>{q}</span>)}</div><div className="kv-about-links"><Pill onClick={()=>enquire()}>Meet your creative side</Pill><a href={settings.instagram} target="_blank" rel="noopener noreferrer" className="kv-icon" aria-label="Kalavridhi on Instagram"><Camera size={20}/></a></div></div>
       </section>
 
       <section id="gallery" className="kv-gallery kv-shell kv-space">
-        <InkCanvas/>
         <div className="kv-section-top kv-reveal"><div><Eyebrow>Made with patience. Filled with colour.</Eyebrow><h2>A world in<br/><span className="kv-muted">every brushstroke.</span></h2></div><p>Traditional stories. Contemporary expression.<br/>Original artworks from Nishkala&apos;s studio.</p></div>
-        <div className="kv-filter" aria-label="Filter artworks">{categories.filter(c=>c==="All"||artworks.some(a=>a.category===c)).map(c=><button key={c} aria-pressed={filter===c} onClick={()=>{setFilter(c);setExpanded(false);}} className={filter===c?"kv-active":""}>{c}</button>)}</div>
-        <div className="kv-art-grid">{displayed.map((a,i)=><button className="kv-art-card kv-reveal" key={a.id} onClick={()=>setLightbox(a)} aria-label={`View ${a.title}`}><div className="kv-art-meta"><span>{a.category} / {String(i+1).padStart(2,"0")}</span><span className="kv-card-arrow"><ArrowUpRight size={23}/></span></div><div className="kv-art-image"><Image src={a.image} alt={a.alt} fill sizes="(max-width: 760px) 90vw, 44vw"/></div><div className="kv-art-info"><div><h3>{a.title}</h3><p>{a.medium||a.artForm}</p></div><span className="kv-tag">{a.artForm}</span></div></button>)}</div>
-        {collection.length===0&&<p className="kv-empty">New work is on its way. Explore another category.</p>}
-        {collection.length>4&&<div className="kv-center"><Pill outline onClick={()=>setExpanded(!expanded)}>{expanded?"Show selected works":`Explore all ${collection.length} artworks`}</Pill></div>}
-        <div id="art-forms" className="kv-practice kv-reveal">
-          <div className="kv-practice-head"><div><Eyebrow>Make your own mark</Eyebrow><h2>Inspired to create?<br/><span className="kv-muted">Find your art form.</span></h2></div><p>{ART_FORMS.length} art forms to explore · Children and adults welcome · Beginners can start here.</p></div>
-          <div className="kv-practice-grid">{ART_FORMS.map((a,i)=><button key={a.id} className="kv-practice-item" onClick={()=>enquire(a.name)}><span className="kv-practice-number">{String(i+1).padStart(2,"0")}</span><span><strong>{a.name}</strong><small>{a.tagline}</small></span><ArrowUpRight size={18}/></button>)}</div>
-          <button className="kv-text-link" onClick={()=>enquire("Help choosing an art class")}>Not sure where to start? Ask Nishkala <ArrowUpRight size={17}/></button>
-        </div>
+        <div className="kv-filter" aria-label="Filter artworks">{categories.filter(c=>c==="All"||artworks.some(a=>a.category===c)).map(c=><button key={c} aria-pressed={filter===c} onClick={()=>setFilter(c)} className={filter===c?"kv-active":""}>{c}</button>)}</div>
+        <ArtworkCarousel key={filter} artworks={collection} onOpen={a=>setLightbox(a)} />
       </section>
 
       <section id="workshops" className="kv-workshops kv-shell kv-space"><div className="kv-section-top kv-reveal"><div><Eyebrow>A little time. Something beautiful.</Eyebrow><h2>Come for the art.<br/><span className="kv-muted">Stay for the joy.</span></h2></div><Pill outline onClick={()=>enquire("Upcoming workshops")}>Find your next workshop</Pill></div>
@@ -156,7 +149,7 @@ export default function StudioPage({artworks, workshops, settings}: {artworks: A
       <section id="recognition" className="kv-recognition kv-shell kv-space"><div className="kv-section-top kv-reveal"><div><Eyebrow>Milestones along the way</Eyebrow><h2>Craft, community<br/><span className="kv-muted">& a little recognition.</span></h2></div><p>Celebrating dedication to art,<br/>teaching, and creative community.</p></div><div className="kv-award-grid">{RECOGNITION.filter(r=>r.image).map(r=><button className="kv-award kv-reveal" key={r.id} onClick={()=>setLightbox({image:r.image!,alt:r.alt,title:r.caption,description:r.organization})}><span className="kv-award-image"><Image src={r.image!} alt={r.alt} fill sizes="160px"/></span><span><small className="kv-micro">{r.period}</small><strong>{r.caption}</strong><span>{r.organization}</span></span><ArrowUpRight size={22}/></button>)}</div></section>
     </main>
 
-    <footer id="contact" className="kv-footer"><InkCanvas/><div className="kv-shell"><div className="kv-footer-cta kv-reveal"><div><Eyebrow light>Your imagination is a good place to start.</Eyebrow><h2>Let&apos;s make<br/>something <span>beautiful.</span></h2></div><Pill light onClick={()=>enquire()}>Start your creative journey</Pill></div><div className="kv-footer-grid"><div><a className="kv-footer-brand" href="#home">kalavridhi<span>ARTS</span></a><p>{settings.tagline}.<br/>Art classes, original artworks, and creative<br/>experiences with {settings.founderName}.</p></div><div><span className="kv-micro">EXPLORE</span>{navigation.map(([label,id])=><a href={`#${id}`} key={id}>{label}<ArrowUpRight size={13}/></a>)}</div><div><span className="kv-micro">LET&apos;S CONNECT</span><a href={wa("Hello, I would like to know more about Kalavridhi Arts.")} target="_blank" rel="noopener noreferrer">WhatsApp <ArrowUpRight size={14}/></a><a href={settings.instagram} target="_blank" rel="noopener noreferrer">Instagram <ArrowUpRight size={14}/></a>{settings.contactEmail&&<a href={`mailto:${settings.contactEmail}`}>Email <ArrowUpRight size={14}/></a>}<button onClick={()=>enquire()}>Enquire about a class <ArrowUpRight size={14}/></button></div></div><div className="kv-legal"><span>© {new Date().getFullYear()} {settings.siteName}. All rights reserved.</span><span>MADE OF COLOUR. MADE WITH HEART.</span><a href="#home">Back to top <ArrowUpRight size={14}/></a></div><div className="kv-footer-watermark" aria-hidden="true">KALAVRIDHI</div></div></footer>
+    <footer id="contact" className="kv-footer"><div className="kv-shell"><div className="kv-footer-cta kv-reveal"><div><Eyebrow light>Your imagination is a good place to start.</Eyebrow><h2>Let&apos;s make<br/>something <span>beautiful.</span></h2></div><Pill light onClick={()=>enquire()}>Start your creative journey</Pill></div><div className="kv-footer-grid"><div><a className="kv-footer-brand" href="#home">kalavridhi<span>ARTS</span></a><p>{settings.tagline}.<br/>Art classes, original artworks, and creative<br/>experiences with {settings.founderName}.</p></div><div><span className="kv-micro">EXPLORE</span>{navigation.map(([label,id])=><a href={`#${id}`} key={id}>{label}<ArrowUpRight size={13}/></a>)}</div><div><span className="kv-micro">LET&apos;S CONNECT</span><a href={wa("Hello, I would like to know more about Kalavridhi Arts.")} target="_blank" rel="noopener noreferrer">WhatsApp <ArrowUpRight size={14}/></a><a href={settings.instagram} target="_blank" rel="noopener noreferrer">Instagram <ArrowUpRight size={14}/></a>{settings.contactEmail&&<a href={`mailto:${settings.contactEmail}`}>Email <ArrowUpRight size={14}/></a>}<button onClick={()=>enquire()}>Enquire about a class <ArrowUpRight size={14}/></button></div></div><div className="kv-legal"><span>© {new Date().getFullYear()} {settings.siteName}. All rights reserved.</span><span>MADE OF COLOUR. MADE WITH HEART.</span><a href="#home">Back to top <ArrowUpRight size={14}/></a></div><div className="kv-footer-watermark" aria-hidden="true">KALAVRIDHI</div></div></footer>
     <button className="kv-floating-contact" onClick={()=>enquire()} aria-label="Enquire about art classes"><MessageCircle size={22}/><span>Let&apos;s create</span></button>
     </div>
 
