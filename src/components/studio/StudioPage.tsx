@@ -114,17 +114,19 @@ export default function StudioPage({artworks, workshops, settings}: {artworks: A
 
     <main id="main">
       <section id="home" className="kv-hero" aria-labelledby="kv-hero-title">
-        <div className="kv-hero-photo"><Image src="/images/founder/nishkala-hero.jpeg" alt="Nishkala Krishna painting a traditional artwork" fill sizes="(max-width: 760px) 100vw, 55vw" preload /></div>
         <div className="kv-hero-wash" aria-hidden="true"/>
         <div className="kv-hero-content kv-shell">
           <div className="kv-hero-copy"><Eyebrow>A space to learn. A world to create.</Eyebrow>
-            <h1 id="kv-hero-title">{settings.heroHeading==="Where Creativity Blooms." ? <><span>Where</span><span>creativity</span><span className="kv-colour-word">blooms.</span></> : <span>{settings.heroHeading}</span>}</h1>
+            <h1 id="kv-hero-title">{settings.heroHeading==="Where Creativity Blooms." ? <><span className="kv-hero-title-line">Where creativity</span><span className="kv-colour-word">blooms.</span></> : <span>{settings.heroHeading}</span>}</h1>
             <p className="kv-hero-description">{settings.heroSubheading}</p>
             <div className="kv-hero-actions"><Pill href="#gallery">Explore the artwork</Pill><button className="kv-text-link" onClick={()=>enquire()}>Let&apos;s talk <ArrowUpRight size={18}/></button></div>
             <p className="kv-hero-note"><span className="kv-avatar"><Image src="/images/founder/nishkala-blue-painting.jpeg" alt="" fill sizes="36px"/></span>Led by {settings.founderName}<span className="kv-note-dot"/>{settings.yearsExperience} years of artistic experience</p>
           </div>
-          <div className="kv-hero-aside"><span className="kv-photo-caption">THE ARTIST, IN HER ELEMENT.<br/><span>Real hands. Real art. Your next beginning.</span></span>
-            {art&&<div className="kv-feature-card"><button className="kv-feature-image" onClick={()=>setLightbox(art)} aria-label={`Enlarge ${art.title}`}><Image src={art.image} alt={art.alt} fill sizes="110px"/></button><div><span className="kv-micro">FROM THE STUDIO</span><strong key={art.id}>{art.title}</strong><div className="kv-feature-controls"><span>{String(featured+1).padStart(2,"0")} / {String(artworks.length).padStart(2,"0")}</span><button aria-label="Previous featured artwork" onClick={()=>setFeatured((featured-1+artworks.length)%artworks.length)}><ArrowLeft size={15}/></button><button aria-label="Next featured artwork" onClick={()=>setFeatured((featured+1)%artworks.length)}><ArrowRight size={15}/></button></div></div></div>}
+          <div className="kv-hero-media">
+            <div className="kv-hero-photo"><Image src="/images/founder/nishkala-hero.jpeg" alt="Nishkala Krishna painting a traditional artwork" fill sizes="(max-width: 900px) 100vw, 52vw" preload /></div>
+            <div className="kv-hero-aside"><span className="kv-photo-caption">THE ARTIST, IN HER ELEMENT.<br/><span>Real hands. Real art. Your next beginning.</span></span>
+              {art&&<div className="kv-feature-card"><button className="kv-feature-image" onClick={()=>setLightbox(art)} aria-label={`Enlarge ${art.title}`}><Image src={art.image} alt={art.alt} fill sizes="110px"/></button><div><span className="kv-micro">FROM THE STUDIO</span><strong key={art.id}>{art.title}</strong><div className="kv-feature-controls"><span>{String(featured+1).padStart(2,"0")} / {String(artworks.length).padStart(2,"0")}</span><button aria-label="Previous featured artwork" onClick={()=>setFeatured((featured-1+artworks.length)%artworks.length)}><ArrowLeft size={15}/></button><button aria-label="Next featured artwork" onClick={()=>setFeatured((featured+1)%artworks.length)}><ArrowRight size={15}/></button></div></div></div>}
+            </div>
           </div>
         </div>
         <div className="kv-hero-watermark" aria-hidden="true">KALAVRIDHI</div>
