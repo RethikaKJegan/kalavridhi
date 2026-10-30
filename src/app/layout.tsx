@@ -1,9 +1,12 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import ScrollRevealInit from "@/hooks/useScrollReveal";
+import { getCanonicalSiteUrl } from "@/lib/structured-data";
+
+const siteUrl = getCanonicalSiteUrl();
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://kalavridhi-arts.com"),
+  metadataBase: new URL(siteUrl),
   title: "Kalavridhi Arts | Art Classes & Creative Workshops",
   description:
     "Explore traditional and contemporary art classes, original artworks and creative workshops with Nishkala Krishna at Kalavridhi Arts. Grow Your Dream.",
@@ -11,14 +14,15 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Kalavridhi Arts | Art Classes & Creative Workshops",
     description: "Traditional and contemporary art classes led by Nishkala Krishna — 20 years of artistic experience.",
-    url: "https://kalavridhi-arts.com",
+    url: siteUrl,
     siteName: "Kalavridhi Arts",
-    images: [{ url: "/images/artwork/tanjore-fabric-painting.jpeg", width: 1200, height: 630, alt: "Tanjore Fabric Painting by Nishkala Krishna" }],
+    images: [{ url: "/images/social/kalavridhi-og.jpg", width: 1200, height: 630, alt: "Kalavridhi Arts — art classes and creative workshops with Nishkala Krishna" }],
     locale: "en_IN",
     type: "website",
   },
   robots: { index: true, follow: true },
-  alternates: { canonical: "https://kalavridhi-arts.com" },
+  twitter: { card: "summary_large_image", title: "Kalavridhi Arts | Art Classes & Creative Workshops", description: "Traditional and contemporary art classes led by Nishkala Krishna.", images: ["/images/social/kalavridhi-og.jpg"] },
+  alternates: { canonical: siteUrl },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

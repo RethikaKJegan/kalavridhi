@@ -65,7 +65,7 @@ export default function WatercolourCanvas() {
       const h = canvas.offsetHeight;
       canvas.width  = w * dpr;
       canvas.height = h * dpr;
-      ctx.scale(dpr, dpr);
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       init(w, h);
     };
 
@@ -87,12 +87,20 @@ export default function WatercolourCanvas() {
     let lastFrame = 0;
     const TARGET = 1000 / 28; // ~28fps cap
 
+    const hero = document.getElementById("home") || document.getElementById("hero");
+    let heroVisible = true;
+    let running = false;
+    const stop = () => { if (running) cancelAnimationFrame(animRef.current); running = false; };
+    const start = () => { if (!running && heroVisible && !document.hidden) { running = true; animRef.current = requestAnimationFrame(draw); } };
+    const visibility = () => document.hidden ? stop() : start();
+    const heroObserver = hero ? new IntersectionObserver(([entry]) => { heroVisible = entry.isIntersecting; heroVisible ? start() : stop(); }, { threshold: 0 }) : null;
+    if (hero) heroObserver?.observe(hero);
+
     const draw = (ts: number) => {
+      if (document.hidden || !heroVisible) { running = false; return; }
       animRef.current = requestAnimationFrame(draw);
       if (ts - lastFrame < TARGET) return;
       lastFrame = ts;
-
-      if (document.hidden) return;
 
       const w = canvas.offsetWidth;
       const h = canvas.offsetHeight;
@@ -124,13 +132,16 @@ export default function WatercolourCanvas() {
       });
     };
 
-    animRef.current = requestAnimationFrame(draw);
+    document.addEventListener("visibilitychange", visibility);
+    start();
 
     return () => {
       cancelAnimationFrame(animRef.current);
       window.removeEventListener("resize", resize);
       window.removeEventListener("mousemove", onMouse);
       window.removeEventListener("touchmove", onTouch);
+      document.removeEventListener("visibilitychange", visibility);
+      heroObserver?.disconnect();
     };
   }, [init]);
 

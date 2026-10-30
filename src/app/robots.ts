@@ -1,4 +1,5 @@
 import { MetadataRoute } from "next";
+import { getCanonicalSiteUrl } from "@/lib/structured-data";
 
 export default function robots(): MetadataRoute.Robots {
   return {
@@ -6,9 +7,9 @@ export default function robots(): MetadataRoute.Robots {
       {
         userAgent: "*",
         allow: "/",
-        disallow: ["/admin/", "/api/"],
+        disallow: ["/admin", "/api/"],
       },
     ],
-    sitemap: "https://kalavridhi-arts.com/sitemap.xml",
+    sitemap: `${getCanonicalSiteUrl()}/sitemap.xml`,
   };
 }

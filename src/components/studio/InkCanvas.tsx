@@ -83,8 +83,9 @@ export default function InkCanvas() {
       const a=gl.getAttribLocation(p,"a"); gl.bindBuffer(gl.ARRAY_BUFFER,buffer); gl.enableVertexAttribArray(a); gl.vertexAttribPointer(a,2,gl.FLOAT,false,0,0);
     };
     const tick = (now: number) => {
+      if(lost || document.hidden) { frame = 0; return; }
       frame = requestAnimationFrame(tick);
-      if(lost || document.hidden || targets.length<2 || now-previous<(matchMedia("(max-width: 760px)").matches?38:30)) return;
+      if(targets.length<2 || now-previous<(1000/28)) return;
       previous=now; const time=now*.001;
       const lane=Math.floor(time/7)%4;
       const auto=[lane%2===0?.95+Math.sin(time*.31)*.025:.05+Math.sin(time*.27)*.025,.43+Math.cos(time*.28+lane)*.27];
@@ -99,7 +100,8 @@ export default function InkCanvas() {
       gl.uniform1f(gl.getUniformLocation(sim,"seed"),time*.24); gl.drawArrays(gl.TRIANGLES,0,6);
       draw(out,targets[1].texture,null); gl.uniform1f(gl.getUniformLocation(out,"strength"),hero ? 0.84 : 0.60); gl.drawArrays(gl.TRIANGLES,0,6); targets.reverse(); movement*=.86; last=point;
     };
-    const contextLost = (e: Event) => { e.preventDefault(); lost=true; };
+    const contextLost = (e: Event) => { e.preventDefault(); lost=true; if(frame)cancelAnimationFrame(frame);frame=0; };
+    const visibilityChange = () => { if(document.hidden){if(frame)cancelAnimationFrame(frame);frame=0;}else if(!lost&&!frame)frame=requestAnimationFrame(tick); };
     const ro=new ResizeObserver(resize); ro.observe(canvas);
     const updateLayer=()=>{
       canvas.classList.toggle("kv-ink-hero",(document.getElementById("home")?.getBoundingClientRect().bottom||0)>innerHeight*.42);
@@ -107,9 +109,9 @@ export default function InkCanvas() {
       canvas.classList.toggle("kv-ink-dark",!!footer&&footer.top<innerHeight*.62&&footer.bottom>innerHeight*.38);
     };
     canvas.addEventListener("webglcontextlost",contextLost); window.addEventListener("pointermove",move,{passive:true}); window.addEventListener("pointerdown",splat,{passive:true});
-    window.addEventListener("scroll",updateLayer,{passive:true}); updateLayer();
+    window.addEventListener("scroll",updateLayer,{passive:true}); document.addEventListener("visibilitychange",visibilityChange); updateLayer();
     resize(); frame=requestAnimationFrame(tick);
-    return () => { cancelAnimationFrame(frame); ro.disconnect(); window.removeEventListener("pointermove",move); window.removeEventListener("pointerdown",splat); window.removeEventListener("scroll",updateLayer); canvas.removeEventListener("webglcontextlost",contextLost); clearTargets(); gl.deleteBuffer(buffer); programs.forEach(p=>gl.deleteProgram(p)); shaders.forEach(s=>gl.deleteShader(s)); };
+    return () => { if(frame)cancelAnimationFrame(frame); ro.disconnect(); window.removeEventListener("pointermove",move); window.removeEventListener("pointerdown",splat); window.removeEventListener("scroll",updateLayer); document.removeEventListener("visibilitychange",visibilityChange); canvas.removeEventListener("webglcontextlost",contextLost); clearTargets(); gl.deleteBuffer(buffer); programs.forEach(p=>gl.deleteProgram(p)); shaders.forEach(s=>gl.deleteShader(s)); };
   }, []);
   return <canvas ref={ref} className="kv-ink kv-site-ink" aria-hidden="true" />;
 }

@@ -14,6 +14,10 @@
 .kv-studio > .kv-ink.kv-ink-hero { opacity: .94; }
 .kv-studio > .kv-ink.kv-ink-dark { opacity: .42; mix-blend-mode: screen; }
 .kv-studio:has(.kv-overlay) > .kv-ink { opacity: .18; }
+.kv-studio :focus-visible { outline: 3px solid #287d9b !important; outline-offset: 3px; }
+.kv-form-error:empty { display: none; }
+.kv-form-error { color: #ffd0df; font-size: 12px; margin: 0; }
+.kv-studio #gallery, .kv-studio #workshops, .kv-studio #recognition { content-visibility: auto; contain-intrinsic-size: auto 900px; }
 
 .kv-about-copy h2 { max-width: 560px; }
 .kv-about-copy h2 strong {
