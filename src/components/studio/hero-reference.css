@@ -1,0 +1,20 @@
+/* Only the hero's right-hand decorative composition changes in this pass. */
+.kv-approved .kv-layered-hero.kv-reference-hero {
+  width:75%; right:-12%; top:85px; bottom:-20px; opacity:1;
+}
+.kv-reference-hero .kv-reference-collage { inset:0; }
+.kv-approved .kv-reference-hero .kv-reference-collage img {
+  object-fit:cover!important; object-position:center bottom;
+}
+@media (min-width:1600px) {
+  .kv-approved .kv-layered-hero.kv-reference-hero { width:78%; right:-14%; top:85px; }
+}
+@media (min-width:768px) and (max-width:1100px) {
+  .kv-approved .kv-layered-hero.kv-reference-hero { width:67%; right:-15%; top:130px; }
+}
+@media (max-width:767px) {
+  .kv-approved .kv-layered-hero.kv-reference-hero {
+    position:relative; inset:auto; width:calc(100% + 20px); height:390px; margin:0 -10px -25px;
+  }
+  .kv-approved .kv-reference-hero .kv-reference-collage img { object-fit:contain!important; object-position:center bottom; }
+}

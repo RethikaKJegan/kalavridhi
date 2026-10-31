@@ -1,0 +1,114 @@
+[
+  {
+    "documentWidth": 1435,
+    "h1Count": 1,
+    "heroTextArtOverlap": true,
+    "sections": [
+      {
+        "id": "home",
+        "width": 1435
+      },
+      {
+        "id": "about",
+        "width": 1263
+      },
+      {
+        "id": "gallery",
+        "width": 1263
+      },
+      {
+        "id": "workshops",
+        "width": 1263
+      },
+      {
+        "id": "recognition",
+        "width": 1263
+      }
+    ],
+    "width": 1440
+  },
+  {
+    "documentWidth": 1020,
+    "h1Count": 1,
+    "heroTextArtOverlap": true,
+    "sections": [
+      {
+        "id": "home",
+        "width": 1020
+      },
+      {
+        "id": "about",
+        "width": 897
+      },
+      {
+        "id": "gallery",
+        "width": 897
+      },
+      {
+        "id": "workshops",
+        "width": 897
+      },
+      {
+        "id": "recognition",
+        "width": 897
+      }
+    ],
+    "width": 1024
+  },
+  {
+    "documentWidth": 386,
+    "h1Count": 1,
+    "heroTextArtOverlap": false,
+    "sections": [
+      {
+        "id": "home",
+        "width": 386
+      },
+      {
+        "id": "about",
+        "width": 346
+      },
+      {
+        "id": "gallery",
+        "width": 346
+      },
+      {
+        "id": "workshops",
+        "width": 346
+      },
+      {
+        "id": "recognition",
+        "width": 346
+      }
+    ],
+    "width": 390
+  },
+  {
+    "documentWidth": 355,
+    "h1Count": 1,
+    "heroTextArtOverlap": false,
+    "sections": [
+      {
+        "id": "home",
+        "width": 355
+      },
+      {
+        "id": "about",
+        "width": 315
+      },
+      {
+        "id": "gallery",
+        "width": 315
+      },
+      {
+        "id": "workshops",
+        "width": 315
+      },
+      {
+        "id": "recognition",
+        "width": 315
+      }
+    ],
+    "width": 360
+  }
+]

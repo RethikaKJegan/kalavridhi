@@ -1,0 +1,51 @@
+{
+  "homepageStatus": 200,
+  "hasHeroLayers": true,
+  "hasSixScenes": true,
+  "hasArtworkGallery": true,
+  "hasWorkshopControls": true,
+  "missingOldHero": true,
+  "assets": [
+    {
+      "path": "/images/decoration/watercolor-wash-v2.webp",
+      "status": 200
+    },
+    {
+      "path": "/images/decoration/watercolor-wash-v2-small.webp",
+      "status": 200
+    },
+    {
+      "path": "/images/decoration/lotus-sprig-v2.webp",
+      "status": 200
+    },
+    {
+      "path": "/images/decoration/lotus-sprig-v2-small.webp",
+      "status": 200
+    },
+    {
+      "path": "/images/decoration/zendoodle-ornament-v2.webp",
+      "status": 200
+    },
+    {
+      "path": "/images/decoration/zendoodle-ornament-v2-small.webp",
+      "status": 200
+    },
+    {
+      "path": "/images/decoration/paintbrush-v2.webp",
+      "status": 200
+    },
+    {
+      "path": "/images/decoration/paintbrush-v2-small.webp",
+      "status": 200
+    },
+    {
+      "path": "/images/decoration/peacock-ornament-v2.webp",
+      "status": 200
+    },
+    {
+      "path": "/images/decoration/peacock-ornament-v2-small.webp",
+      "status": 200
+    }
+  ],
+  "screenVerification": "Not performed: local browser use reported disabled, including after user reported enabling it."
+}

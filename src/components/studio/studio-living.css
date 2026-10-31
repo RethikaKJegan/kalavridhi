@@ -1,0 +1,47 @@
+/* One real 3D brush and a restrained, noninteractive pigment overlay. */
+.kv-approved .kv-scene-brush { display:none!important; }
+.kv-approved > .kv-site-ink,
+.kv-approved > .kv-site-ink.kv-ink-hero,
+.kv-approved > .kv-site-ink.kv-ink-dark {
+  position:fixed; inset:0; width:100%; height:100dvh; pointer-events:none;
+  z-index:18; opacity:.4; mix-blend-mode:multiply;
+  mask-image:linear-gradient(90deg,#000 0%,#0009 8%,transparent 23%,transparent 77%,#0009 92%,#000 100%);
+}
+.kv-approved > .kv-site-ink.kv-ink-dark { mix-blend-mode:screen; opacity:.32; }
+.kv-approved:has(.kv-overlay) > .kv-site-ink { opacity:0; }
+.kv-approved .kv-reference-brush {
+  position:fixed; right:8px; top:30vh; width:220px; height:220px;
+  pointer-events:none; z-index:24; opacity:1; filter:drop-shadow(3px 5px 4px #17233a20);
+}
+.kv-approved .kv-reference-brush canvas { display:block; width:220px; height:220px; }
+.kv-approved:has(.kv-overlay) .kv-reference-brush { visibility:hidden; }
+.kv-approved .kv-brand-pair { display:flex; gap:12px; flex-shrink:0; }
+.kv-approved .kv-brand-pair > .kv-brand-square {
+  width:68px; height:68px; object-fit:contain; border-radius:10px;
+  border:1px solid #e9dcd0; background:#fffbf5; box-shadow:0 3px 12px #182a4210;
+}
+.kv-approved .kv-brand-pair > .kv-brand-wordmark {
+  width:250px; height:auto; object-fit:contain; border-radius:0; box-shadow:none;
+}
+@media (max-width:1200px) {
+  .kv-approved .kv-brand-pair { gap:8px; }
+  .kv-approved .kv-brand-pair > .kv-brand-square { width:56px; height:56px; }
+  .kv-approved .kv-brand-pair > .kv-brand-wordmark { width:210px; }
+  .kv-approved .kv-header > nav { gap:18px; }
+}
+@media (max-width:959px), (pointer:coarse), (prefers-reduced-motion:reduce) {
+  .kv-approved .kv-reference-brush { display:none; }
+}
+@media (max-width:767px) {
+  .kv-approved .kv-brand-pair { gap:7px; }
+  .kv-approved .kv-brand-pair > .kv-brand-square { width:44px; height:44px; border-radius:7px; }
+  .kv-approved .kv-brand-pair > .kv-brand-wordmark { width:160px; }
+  .kv-approved > .kv-site-ink,.kv-approved > .kv-site-ink.kv-ink-hero { opacity:.28; }
+}
+@media (max-width:380px) {
+  .kv-approved .kv-brand-pair > .kv-brand-wordmark { width:143px; }
+  .kv-approved .kv-brand-pair > .kv-brand-square { width:40px; height:40px; }
+}
+@media (prefers-reduced-motion:reduce) {
+  .kv-approved > .kv-site-ink { display:none; }
+}

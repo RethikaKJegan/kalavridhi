@@ -1,0 +1,133 @@
+/* Phase 2: painted, independent, STATIC assets. All editorial content remains DOM/CMS. */
+.kv-painted-asset { display:block; position:absolute; pointer-events:none; }
+.kv-painted-asset img { object-fit:contain!important; }
+.kv-approved .kv-scene-decor { overflow:hidden; }
+.kv-approved .kv-paper-wash { display:none; }
+.kv-approved .kv-gallery::before,.kv-approved .kv-about::before,
+.kv-approved .kv-workshops::before,.kv-approved .kv-recognition::before { display:none; }
+.kv-approved .kv-header { backdrop-filter:none; }
+.kv-approved .kv-botanical { opacity:.78; }
+.kv-approved .kv-mandala { color:#d4a043; opacity:.24; }
+.kv-textured-wash { width:700px; height:520px; opacity:.38; mix-blend-mode:multiply; }
+.kv-textured-wash-one { left:-260px; top:-170px; transform:rotate(-18deg); }
+.kv-textured-wash-two { right:-300px; bottom:-130px; transform:rotate(145deg); opacity:.28; }
+.kv-botanical-linework { position:absolute; left:-125px; top:60px; width:260px; height:620px; color:#bd934f; opacity:.45; }
+.kv-paint-flecks { position:absolute; inset:0; width:100%; height:100%; opacity:.6; }
+.kv-scene-brush { width:200px; height:520px; right:-105px; top:100px; transform:rotate(-5deg); }
+.kv-approved .kv-gold-thread { opacity:.6; stroke-linecap:round; }
+
+/* Editorial hero: separate ink profile, pigment, print disc, flora and peacock. */
+.kv-approved .kv-layered-hero { width:70%; right:-9%; top:95px; bottom:-25px; overflow:visible; opacity:1; }
+.kv-hero-pigment { inset:-5% -10% -8% -14%; opacity:.75; transform:rotate(-12deg); }
+.kv-coral-disc { position:absolute; width:64%; aspect-ratio:1; border-radius:50%; top:2%; left:19%; background:#ff806a; opacity:.82; background-image:url('/images/decoration/paper-grain.svg'); }
+.kv-approved .kv-layered-hero .kv-hero-gold-arc { width:88%; height:100%; top:-12%; left:-6%; right:auto; opacity:.6; }
+.kv-hero-ink-profile { left:26%; top:1%; width:66%; height:107%; z-index:3; }
+.kv-hero-peacock { width:52%; height:63%; right:-3%; bottom:-5%; z-index:5; }
+.kv-hero-lotus-back { width:43%; height:70%; left:1%; bottom:-9%; z-index:2; transform:rotate(-18deg); }
+.kv-hero-lotus-front { width:37%; height:53%; left:16%; bottom:-17%; z-index:6; transform:rotate(-18deg); }
+.kv-approved .kv-layered-hero .kv-hero-leaf-layer { left:5%; top:5%; width:45%; height:100%; color:#759178; opacity:.7; z-index:1; transform:rotate(-24deg); }
+.kv-approved .kv-scene-hero .kv-mandala { left:-250px; right:auto; top:300px; width:440px; height:440px; opacity:.32; }
+.kv-scene-hero .kv-textured-wash-one { left:-380px; top:-210px; width:750px; opacity:.4; }
+.kv-scene-hero .kv-textured-wash-two { right:-140px; bottom:-200px; opacity:.3; }
+.kv-approved .kv-scene-hero .kv-botanical-one { display:block; left:-150px; top:140px; bottom:auto; width:220px; height:520px; opacity:.8; transform:rotate(17deg); }
+.kv-scene-hero .kv-botanical-linework { top:0; left:-135px; opacity:.28; }
+.kv-scene-hero .kv-gold-thread { display:none; }
+.kv-approved .kv-hero-bottom { z-index:7; background:linear-gradient(90deg,#fffaf3b0,transparent); }
+
+/* Portrait frame: soft pigment surrounds the authentic untouched photograph. */
+.kv-approved .kv-about { gap:8%; }
+.kv-approved .kv-portrait { aspect-ratio:.94; border-radius:40px; box-shadow:0 15px 35px #354a4b16; }
+.kv-scene-about .kv-textured-wash-one { width:850px; height:750px; left:-130px; top:0; opacity:.48; }
+.kv-scene-about .kv-textured-wash-two { right:-410px; top:-100px; bottom:auto; opacity:.28; }
+.kv-approved .kv-scene-about .kv-botanical-one { left:-100px; bottom:40px; width:260px; height:410px; opacity:.88; transform:rotate(-25deg); }
+.kv-approved .kv-scene-about .kv-botanical-two { left:32%; right:auto; bottom:35px; top:auto; width:180px; height:330px; opacity:.6; transform:rotate(22deg); }
+.kv-approved .kv-scene-about .kv-mandala { width:400px; height:400px; top:100px; left:-230px; opacity:.4; }
+.kv-scene-about .kv-scene-brush { right:-145px; top:65px; height:450px; width:200px; }
+.kv-approved .kv-image-note { font-size:10px; letter-spacing:.2em; color:#304867; }
+.kv-approved .kv-about-links { border-top:0; padding-top:0; }
+
+/* Gallery: pigment and a small floral bridge frame the foreground original paintings. */
+.kv-approved .kv-gallery { padding-top:70px; }
+.kv-scene-gallery .kv-textured-wash-one { left:37%; top:-190px; width:650px; opacity:.38; }
+.kv-scene-gallery .kv-textured-wash-two { left:-230px; right:auto; bottom:-30px; width:650px; height:480px; opacity:.35; }
+.kv-approved .kv-scene-gallery .kv-botanical-two { left:44%; right:auto; top:-110px; width:200px; height:300px; opacity:.72; transform:rotate(-35deg); }
+.kv-approved .kv-scene-gallery .kv-botanical-one { left:-100px; bottom:0; width:210px; height:410px; opacity:.75; }
+.kv-approved .kv-scene-gallery .kv-mandala { width:600px; height:600px; right:15%; top:-310px; opacity:.35; }
+.kv-scene-gallery .kv-scene-brush { right:-130px; top:185px; width:200px; height:460px; transform:rotate(-2deg); }
+.kv-approved .kv-art-carousel { background:#fffcf7d4; border-color:#e8e2dc; box-shadow:0 24px 50px #44394712; }
+.kv-approved .kv-art-sheet { box-shadow:0 18px 38px #4f413127; }
+
+/* Workshops: same real photographs, floral edges and painted header. */
+.kv-scene-workshops .kv-textured-wash-one { left:auto; right:-130px; top:-200px; width:820px; opacity:.45; transform:rotate(-25deg); }
+.kv-scene-workshops .kv-textured-wash-two { left:20%; right:auto; bottom:-210px; opacity:.4; }
+.kv-approved .kv-scene-workshops .kv-botanical-two { right:30%; top:-80px; width:190px; height:260px; opacity:.8; transform:rotate(30deg); }
+.kv-approved .kv-scene-workshops .kv-botanical-one { left:-125px; bottom:110px; width:220px; height:430px; transform:rotate(-10deg); }
+.kv-scene-workshops .kv-botanical-linework { left:auto; right:-130px; top:140px; color:#598d7e; opacity:.5; transform:scaleX(-1); }
+.kv-scene-workshops .kv-scene-brush { top:-210px; right:50px; height:450px; width:270px; transform:rotate(21deg); }
+.kv-approved .kv-scene-workshops .kv-mandala { right:24%; top:-180px; opacity:.18; }
+.kv-approved .kv-moment-card { border-color:#fffcf6; box-shadow:0 12px 30px #98704c20; }
+
+/* Recognition: preserve verified award facts; source documents stay unobstructed. */
+.kv-scene-recognition .kv-textured-wash-one { left:-170px; top:-160px; width:800px; opacity:.32; }
+.kv-scene-recognition .kv-textured-wash-two { right:-200px; bottom:-170px; width:800px; opacity:.4; }
+.kv-approved .kv-scene-recognition .kv-botanical-two { right:28%; top:-110px; width:260px; height:360px; transform:rotate(10deg); opacity:.8; }
+.kv-approved .kv-scene-recognition .kv-mandala { right:27%; top:-110px; width:460px; height:460px; opacity:.28; }
+.kv-scene-recognition .kv-scene-brush { right:-135px; top:-160px; width:230px; height:440px; }
+.kv-approved .kv-award { background:#fffdfaee; box-shadow:0 12px 18px #d7a97f20; }
+.kv-approved .kv-award-grid { position:relative; z-index:1; }
+
+/* Footer: separate translucent pigment and gold botanical contours over navy. */
+.kv-approved .kv-footer { background:linear-gradient(120deg,#203c5d,#13223e 48%,#2f2843); }
+.kv-approved .kv-footer::before { display:none; }
+.kv-scene-footer .kv-textured-wash { mix-blend-mode:screen; opacity:.45; }
+.kv-scene-footer .kv-textured-wash-one { left:auto; right:-100px; top:-170px; width:850px; height:650px; transform:rotate(-32deg); }
+.kv-scene-footer .kv-textured-wash-two { left:-350px; right:auto; bottom:-220px; width:800px; height:650px; opacity:.23; }
+.kv-approved .kv-scene-footer .kv-botanical-one { left:-130px; bottom:-110px; width:240px; height:450px; opacity:.9; transform:rotate(5deg); }
+.kv-approved .kv-scene-footer .kv-botanical-two { right:13%; top:-100px; width:240px; height:340px; opacity:.9; transform:rotate(-16deg); }
+.kv-scene-footer .kv-botanical-linework { width:280px; height:680px; color:#dab778; left:-160px; top:110px; opacity:.75; }
+.kv-scene-footer .kv-scene-brush { right:-100px; top:-155px; width:300px; height:520px; transform:rotate(-4deg); }
+.kv-scene-footer .kv-paint-flecks { opacity:.6; }
+.kv-approved .kv-footer-grid { position:relative; z-index:1; }
+
+@media (min-width:1600px) {
+  .kv-approved .kv-hero-content { min-height:850px; padding-top:175px; }
+  .kv-approved .kv-layered-hero { right:-10%; width:75%; top:80px; }
+  .kv-approved.kv-studio .kv-hero h1 { font-size:130px; }
+}
+@media (min-width:768px) and (max-width:1100px) {
+  .kv-approved .kv-layered-hero { width:66%; right:-13%; top:130px; }
+  .kv-approved .kv-hero-copy { max-width:420px; }
+  .kv-approved .kv-about { gap:6%; }
+  .kv-scene-workshops .kv-scene-brush { right:-10px; width:200px; height:350px; top:-170px; }
+  .kv-approved .kv-scene-recognition .kv-botanical-two { right:24%; width:190px; top:-140px; opacity:.5; }
+  .kv-scene-about .kv-scene-brush,.kv-scene-gallery .kv-scene-brush { right:-140px; opacity:.65; }
+}
+@media (max-width:767px) {
+  .kv-approved .kv-layered-hero { position:relative; inset:auto; width:calc(100% + 20px); margin:0 -10px -25px; height:390px; flex:none; }
+  .kv-approved .kv-hero-content { display:flex; flex-direction:column; }
+  .kv-hero-ink-profile { left:27%; width:64%; top:0; height:100%; }
+  .kv-hero-peacock { right:0; width:48%; height:62%; bottom:-3%; }
+  .kv-hero-lotus-back { width:40%; height:65%; left:0; bottom:-2%; }
+  .kv-hero-lotus-front { width:34%; height:44%; left:15%; bottom:-9%; }
+  .kv-coral-disc { top:3%; left:23%; width:64%; }
+  .kv-hero-pigment { inset:-10%; opacity:.6; }
+  .kv-approved .kv-layered-hero .kv-hero-gold-arc { left:-6%; top:-12%; width:100%; height:110%; }
+  .kv-approved .kv-hero-benefits { margin-bottom:8px; }
+  .kv-approved .kv-scene-decor .kv-textured-wash { width:430px; height:350px; opacity:.27; }
+  .kv-approved .kv-scene-decor .kv-textured-wash-one { left:-280px; right:auto; top:-80px; }
+  .kv-approved .kv-scene-decor .kv-textured-wash-two { right:-280px; left:auto; bottom:-80px; top:auto; }
+  .kv-approved .kv-scene-decor .kv-botanical-one { width:140px; height:250px; left:-100px; top:auto; bottom:0; opacity:.6; }
+  .kv-approved .kv-scene-decor .kv-botanical-two { width:130px; height:220px; right:-90px; left:auto; top:-40px; bottom:auto; opacity:.48; }
+  .kv-approved .kv-scene-decor .kv-mandala { width:330px; height:330px; left:auto; right:-190px; top:-80px; opacity:.2; }
+  .kv-approved .kv-scene-decor .kv-scene-brush { width:100px; height:240px; right:-85px; top:70px; opacity:.65; }
+  .kv-approved .kv-scene-decor .kv-botanical-linework { width:170px; height:400px; left:-140px; right:auto; opacity:.2; }
+  .kv-approved .kv-scene-hero .kv-botanical-one,.kv-approved .kv-scene-hero .kv-botanical-linework { display:none; }
+  .kv-approved .kv-scene-hero .kv-mandala { top:430px; }
+  .kv-approved .kv-scene-footer .kv-textured-wash-one { left:auto; right:-220px; top:-40px; width:600px; height:450px; opacity:.32; }
+  .kv-approved .kv-scene-footer .kv-botanical-two { right:-100px; width:180px; top:-30px; opacity:.7; }
+  .kv-approved .kv-scene-footer .kv-scene-brush { right:-90px; top:-65px; width:150px; height:280px; }
+  .kv-approved .kv-scene-footer .kv-botanical-one { opacity:.4; }
+  .kv-approved .kv-about { gap:45px; }
+}
+/* Static checkpoint: retained motion source is deliberately not mounted. */
+.kv-approved .kv-art-enter-next,.kv-approved .kv-art-enter-previous,.kv-approved .kv-art-story h3 { animation:none; }

@@ -1,14 +1,25 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { BufferGeometry, Material } from "three";
 
 const stops = ["home", "about", "gallery", "workshops", "recognition", "contact"];
-const positions = [0, -70, 50, 78, -25, 30];
-const angles = [-.31, -.4, -.24, -.34, -.44, -.29];
 
-/** Original, low-poly artist's brush with physically lit materials. */
+
+/** True 3D brush modeled after the supplied burgundy / brass / pink-bristle reference. */
 export default function BrushGuide() {
+  const [enabled, setEnabled] = useState(false);
+  useEffect(() => {
+    const media = matchMedia("(min-width: 960px) and (pointer: fine) and (prefers-reduced-motion: no-preference)");
+    const update = () => setEnabled(media.matches);
+    const frame = requestAnimationFrame(update);
+    media.addEventListener("change", update);
+    return () => { cancelAnimationFrame(frame); media.removeEventListener("change", update); };
+  }, []);
+  return enabled ? <BrushRenderer/> : null;
+}
+
+function BrushRenderer() {
   const host = useRef<HTMLDivElement>(null);
   useEffect(() => {
     const element = host.current;
@@ -23,21 +34,21 @@ export default function BrushGuide() {
       let renderer: InstanceType<typeof THREE.WebGLRenderer>;
       try { renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true, powerPreference: "low-power" }); }
       catch { return; }
-      renderer.setPixelRatio(Math.min(devicePixelRatio, 1.6));
-      renderer.setSize(170, 300);
+      renderer.setPixelRatio(Math.min(devicePixelRatio, 1.5));
+      renderer.setSize(220, 220);
       renderer.outputColorSpace = THREE.SRGBColorSpace;
       element.prepend(renderer.domElement);
 
       const scene = new THREE.Scene();
-      const camera = new THREE.PerspectiveCamera(34, 170 / 300, .1, 100);
-      camera.position.set(0, 0, 5.1);
+      const camera = new THREE.PerspectiveCamera(34, 1, .1, 100);
+      camera.position.set(0, 0, 6.4);
       const brush = new THREE.Group(); scene.add(brush);
       scene.add(new THREE.HemisphereLight(0xffffff, 0x8794ad, 1.65));
       const key = new THREE.DirectionalLight(0xfff5e9, 2.3); key.position.set(-3, 4, 5); scene.add(key);
       const edge = new THREE.DirectionalLight(0xb9d6ff, 1.2); edge.position.set(3, -1, -2); scene.add(edge);
 
       const grain = document.createElement("canvas"); grain.width = 128; grain.height = 512;
-      const ctx = grain.getContext("2d")!; ctx.fillStyle = "#593547"; ctx.fillRect(0, 0, 128, 512);
+      const ctx = grain.getContext("2d")!; ctx.fillStyle = "#54212c"; ctx.fillRect(0, 0, 128, 512);
       for (let i = 0; i < 170; i++) {
         const x = (i * 79) % 128, y = (i * 137) % 512;
         ctx.strokeStyle = i % 3 === 0 ? "#ba7a7860" : "#26172d55";
@@ -45,11 +56,11 @@ export default function BrushGuide() {
         ctx.beginPath(); ctx.moveTo(x, y); ctx.bezierCurveTo(x + 5, y + 35, x - 4, y + 70, x + 2, y + 135); ctx.stroke();
       }
       const grainTexture = new THREE.CanvasTexture(grain); grainTexture.colorSpace = THREE.SRGBColorSpace;
-      const handle = new THREE.MeshPhysicalMaterial({ map: grainTexture, roughness: .43, clearcoat: .32, clearcoatRoughness: .34 });
-      const ferrule = new THREE.MeshStandardMaterial({ color: 0xc7c8d0, metalness: .68, roughness: .25 });
-      const ridge = new THREE.MeshStandardMaterial({ color: 0xf0eee8, metalness: .55, roughness: .2 });
-      const natural = new THREE.MeshStandardMaterial({ color: 0xc8a684, roughness: .9, side: THREE.DoubleSide });
-      const inked = new THREE.MeshStandardMaterial({ color: 0xb84879, roughness: .77, side: THREE.DoubleSide });
+      const handle = new THREE.MeshPhysicalMaterial({ map: grainTexture, roughness: .27, clearcoat: .75, clearcoatRoughness: .2 });
+      const ferrule = new THREE.MeshStandardMaterial({ color: 0xc89b4d, metalness: .8, roughness: .24 });
+      const ridge = new THREE.MeshStandardMaterial({ color: 0xe7c77c, metalness: .8, roughness: .2 });
+      const natural = new THREE.MeshStandardMaterial({ color: 0x795438, roughness: .9, side: THREE.DoubleSide });
+      const inked = new THREE.MeshStandardMaterial({ color: 0xe38aab, roughness: .77, side: THREE.DoubleSide });
       const add = (geometry: BufferGeometry, material: Material, y: number) => {
         const mesh = new THREE.Mesh(geometry, material); mesh.position.y = y; brush.add(mesh); return mesh;
       };
@@ -71,7 +82,7 @@ export default function BrushGuide() {
         dummy.position.set(Math.cos(angle) * radius, -1.49 - (i % 5) * .012, Math.sin(angle) * radius * .82);
         dummy.rotation.set(Math.sin(angle) * .06, 0, Math.PI + Math.cos(angle) * .055);
         dummy.scale.set(1, .87 + (i % 7) * .025, 1); dummy.updateMatrix(); strands.setMatrixAt(i, dummy.matrix);
-        shade.set(i % 4 === 0 ? 0xf3d6ac : i % 4 === 1 ? 0xb79875 : 0xd9b994); strands.setColorAt(i, shade);
+        shade.set(i % 4 === 0 ? 0xb79065 : i % 4 === 1 ? 0x5b3928 : 0x926844); strands.setColorAt(i, shade);
       }
       for (let i = 0; i < 21; i++) {
         const radius = Math.sqrt(i / 21) * .039, angle = i * 2.39996;
@@ -81,27 +92,37 @@ export default function BrushGuide() {
       }
       brush.add(strands, dipped); brush.rotation.set(.1, -.26, -.31);
 
-      let frame = 0, previous = 0;
-      const render = (now: number) => {
-        frame = requestAnimationFrame(render);
-        if (document.hidden || now - previous < 33) return;
-        previous = now; brush.rotation.y = -.26 + Math.sin(now * .00055) * .025;
-        renderer.render(scene, camera);
+      // Render only during movement; no permanent animation loop.
+      const render = () => { if (!document.hidden) renderer.render(scene, camera); };
+      let frame = 0;
+      const move = () => {
+        frame = 0;
+        if (document.hidden || !element.isConnected) return;
+        const sections = stops.map(id => document.getElementById(id)).filter((node): node is HTMLElement => !!node);
+        const active = sections.find(node => { const r = node.getBoundingClientRect(); return r.top <= innerHeight * .55 && r.bottom > innerHeight * .55; })
+          ?? sections.find(node => {const r=node.getBoundingClientRect();return r.bottom>0 && r.top<innerHeight;});
+        if (!active) return;
+        const heading = active.querySelector('h1,h2') ?? active;
+        const rect = heading.getBoundingClientRect();
+        const targetY = Math.max(innerHeight * .25, Math.min(innerHeight * .7, rect.top + rect.height * .5));
+        const y = Math.max(-90, Math.min(120, targetY - (innerHeight * .3 + 110)));
+        const targetX = Math.min(innerWidth * .65, rect.left + rect.width * .5);
+        const angle = Math.atan2(targetX - (innerWidth - 126), targetY - (innerHeight * .3 + 110 + y));
+        element.dataset.stop = active.id;
+        gsap.to(element, { y, duration: .9, ease: 'power2.out', overwrite: true, onUpdate: render });
+        gsap.to(brush.rotation, { z: Math.max(-2.1, Math.min(-.45, angle)), y: -.24, duration: 1.05, ease: 'power2.out', overwrite: true, onUpdate: render });
       };
-      frame = requestAnimationFrame(render);
-      let current = -1;
-      const move = (index: number) => {
-        if (index === current) return;
-        current = index; element.dataset.stop = stops[index];
-        element.classList.remove("kv-brush-draw"); void element.offsetWidth; element.classList.add("kv-brush-draw");
-        gsap.to(element, { y: positions[index], x: index % 2 ? 2 : -8, duration: 1.4, ease: "power3.out", overwrite: true });
-        gsap.to(brush.rotation, { z: angles[index], duration: 1.3, ease: "power2.out", overwrite: true });
-      };
-      const triggers = stops.map((id, index) => ScrollTrigger.create({ trigger: `#${id}`, start: "top 66%", end: "bottom 34%", onEnter: () => move(index), onEnterBack: () => move(index) }));
-      move(0);
+      const schedule = () => { if (!frame) frame = requestAnimationFrame(move); };
+      const visibility = () => { if (document.hidden) { if(frame)cancelAnimationFrame(frame);frame=0;gsap.killTweensOf(element);gsap.killTweensOf(brush.rotation); } else schedule(); };
+      window.addEventListener('scroll', schedule, {passive:true});
+      window.addEventListener('resize', schedule);
+      document.addEventListener('visibilitychange', visibility);
+      const triggers = stops.map(id => ScrollTrigger.create({trigger: '#' + id, start:'top 66%', end:'bottom 34%', onEnter:schedule, onEnterBack:schedule}));
+      schedule();
       dispose = () => {
         triggers.forEach(trigger => trigger.kill()); gsap.killTweensOf(element); gsap.killTweensOf(brush.rotation);
         cancelAnimationFrame(frame);
+        window.removeEventListener("scroll", schedule); window.removeEventListener("resize", schedule); document.removeEventListener("visibilitychange", visibility);
         brush.traverse(object => { if (object instanceof THREE.Mesh) object.geometry.dispose(); });
         [handle, ferrule, ridge, natural, inked].forEach(material => material.dispose());
         grainTexture.dispose(); renderer.dispose(); renderer.domElement.remove();
@@ -109,5 +130,5 @@ export default function BrushGuide() {
     })();
     return () => { disposed = true; dispose(); };
   }, []);
-  return <div ref={host} className="kv-brush-guide" aria-hidden="true"><span className="kv-brush-stroke" /></div>;
+  return <div ref={host} className="kv-brush-guide kv-reference-brush" aria-hidden="true" />;
 }

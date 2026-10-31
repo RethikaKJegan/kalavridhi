@@ -1,7 +1,8 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useRef, useState, type CSSProperties, type TouchEvent } from "react";
+import { useRef, useState, type CSSProperties } from "react";
+import useDeckGesture from "./useDeckGesture";
 import { ArrowLeft, ArrowRight, ArrowUpRight } from "lucide-react";
 import type { Artwork } from "@/lib/server-data";
 
@@ -25,12 +26,10 @@ const fallbackColours: Record<string, [string, string, string]> = {
 };
 
 export default function ArtworkCarousel({ artworks, onOpen }: { artworks: Artwork[]; onOpen: (artwork: Artwork) => void }) {
-  const [index, setIndex] = useState(0);
+  const [position, setIndex] = useState(() => Math.max(0, artworks.findIndex(a => a.artForm === "Mandala Art")));
+  const index = position % Math.max(artworks.length, 1);
   const [direction, setDirection] = useState<1 | -1>(1);
-  const [isVisible, setIsVisible] = useState(false);
   const carouselRef = useRef<HTMLDivElement>(null);
-  const start = useRef<{ x: number; y: number } | null>(null);
-  const swiped = useRef(false);
   const resumeAt = useRef(0);
   const total = artworks.length;
   const active = artworks[index];
@@ -44,49 +43,19 @@ export default function ArtworkCarousel({ artworks, onOpen }: { artworks: Artwor
     setDirection(step);
     setIndex(current => (current + step + total) % total);
   };
-  useEffect(() => {
-    const node = carouselRef.current;
-    if (!node) return;
-    const observer = new IntersectionObserver(([entry]) => setIsVisible(entry.isIntersecting), { threshold: 0.2 });
-    observer.observe(node);
-    return () => observer.disconnect();
-  }, []);
-  useEffect(() => {
-    if (!isVisible || total < 2 || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    const timer = window.setInterval(() => {
-      if (document.hidden || performance.now() < resumeAt.current) return;
-      setDirection(1);
-      setIndex(current => (current + 1) % total);
-    }, 2500);
-    return () => window.clearInterval(timer);
-  }, [isVisible, total]);
-  const onTouchStart = (event: TouchEvent<HTMLDivElement>) => {
-    const touch = event.touches[0];
-    if (touch) start.current = { x: touch.clientX, y: touch.clientY };
-  };
-  const onTouchEnd = (event: TouchEvent<HTMLDivElement>) => {
-    const touch = event.changedTouches[0];
-    if (!start.current || !touch) return;
-    const dx = touch.clientX - start.current.x;
-    const dy = touch.clientY - start.current.y;
-    start.current = null;
-    if (Math.abs(dx) < 45 || Math.abs(dx) < Math.abs(dy) * 1.2) return;
-    swiped.current = true;
-    go(dx < 0 ? 1 : -1, event.timeStamp);
-    window.setTimeout(() => { swiped.current = false; }, 350);
-  };
+  const gesture = useDeckGesture(step => go(step));
   if (!active) return <p className="kv-empty">New work is on its way. Explore another category.</p>;
 
   return <div ref={carouselRef} className="kv-art-carousel kv-reveal" style={palette} role="region" aria-roledescription="carousel" aria-label="Selected artworks" tabIndex={0}
     onKeyDown={event => { if (event.key === "ArrowRight") { event.preventDefault(); go(1, event.timeStamp); } else if (event.key === "ArrowLeft") { event.preventDefault(); go(-1, event.timeStamp); } }}>
-    <div className="kv-art-stage" onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}>
+    <div className="kv-art-stage" {...gesture}>
       <div className="kv-art-ambient" aria-hidden="true" />
       {total > 1 && <button className="kv-art-next-sheet" onClick={event => go(1, event.timeStamp)} aria-label={`Next artwork: ${next.title}`} tabIndex={-1}>
-        <Image src={next.image} alt="" fill sizes="(max-width: 760px) 75vw, 450px" />
+        <Image unoptimized src={next.image} alt="" fill sizes="(max-width: 760px) 75vw, 450px" />
       </button>}
-      <button key={active.id} className={`kv-art-sheet kv-art-enter-${direction === 1 ? "next" : "previous"}`} onClick={event => { if (!swiped.current) { resumeAt.current = event.timeStamp + 60_000; onOpen(active); } }} aria-label={`View ${active.title}`}>
+      <button key={active.id} className={`kv-art-sheet kv-art-enter-${direction === 1 ? "next" : "previous"}`} onClick={() => onOpen(active)} aria-label={`View ${active.title}`}>
         <span className="kv-art-sheet-top"><span>FROM NISHKALA&apos;S STUDIO</span><span>{String(index + 1).padStart(2, "0")} / {String(total).padStart(2, "0")}</span></span>
-        <span className="kv-art-sheet-image"><Image src={active.image} alt={active.alt} fill sizes="(max-width: 760px) 85vw, 630px" priority={index === 0} /></span>
+        <span className="kv-art-sheet-image"><Image unoptimized src={active.image} alt={active.alt} fill sizes="(max-width: 760px) 85vw, 630px" /></span>
         <span className="kv-art-sheet-bottom"><span>{active.artForm}</span><ArrowUpRight size={19} /></span>
       </button>
     </div>

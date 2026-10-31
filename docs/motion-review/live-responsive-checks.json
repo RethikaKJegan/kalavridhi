@@ -1,0 +1,42 @@
+[
+  {
+    "artworkSource": "/images/artwork/mandala-art.jpeg",
+    "canvasCount": 0,
+    "galleryFit": "contain",
+    "h1Count": 1,
+    "heroFit": "contain",
+    "heroSource": "https://kalavridhi.kalavridhi-arts.workers.dev/images/decoration/hero-art-collage.webp",
+    "pageWidth": 1440,
+    "width": 1440
+  },
+  {
+    "artworkSource": "/images/artwork/mandala-art.jpeg",
+    "canvasCount": 0,
+    "galleryFit": "contain",
+    "h1Count": 1,
+    "heroFit": "contain",
+    "heroSource": "https://kalavridhi.kalavridhi-arts.workers.dev/images/decoration/hero-art-collage.webp",
+    "pageWidth": 1024,
+    "width": 1024
+  },
+  {
+    "artworkSource": "/images/artwork/mandala-art.jpeg",
+    "canvasCount": 0,
+    "galleryFit": "contain",
+    "h1Count": 1,
+    "heroFit": "contain",
+    "heroSource": "https://kalavridhi.kalavridhi-arts.workers.dev/images/decoration/hero-art-collage-mobile.webp",
+    "pageWidth": 390,
+    "width": 390
+  },
+  {
+    "artworkSource": "/images/artwork/mandala-art.jpeg",
+    "canvasCount": 0,
+    "galleryFit": "contain",
+    "h1Count": 1,
+    "heroFit": "contain",
+    "heroSource": "https://kalavridhi.kalavridhi-arts.workers.dev/images/decoration/hero-art-collage-mobile.webp",
+    "pageWidth": 360,
+    "width": 360
+  }
+]
