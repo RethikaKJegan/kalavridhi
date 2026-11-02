@@ -42,9 +42,13 @@ export default function useSectionMotion(ref: RefObject<HTMLDivElement | null>) 
         play(node, { opacity: [.65, 1], y: [matchMedia("(max-width:767px)").matches ? 10 : 18, 0] }, { duration: .55, ease: [.22, 1, .36, 1] });
       }, { margin: "0px 0px -6% 0px" });
       const stopAccent = media.matches ? () => {} : inView(root.querySelectorAll(".kv-painted-stroke"), node => {
+        if(matchMedia("(min-width:960px) and (pointer:fine)").matches && ["home","workshops","recognition"].includes(node.closest("section")?.id ?? "")) return;
         const path = node.querySelector("path");
         if (path) play(path, { pathLength: [0, 1], opacity: [.2, .8] }, { duration: .8, delay: .22, ease: [.22, 1, .36, 1] });
       }, { margin: "0px 0px -8% 0px" });
+      const stopHeadings = media.matches ? () => {} : inView(root.querySelectorAll(".kv-section-top h2,.kv-about-copy h2"), node => {
+        play(node,{opacity:[.65,1],y:[10,0]},{duration:.55,ease:[.22,1,.36,1]});
+      },{margin:"0px 0px -5% 0px"});
       const gallery = root.querySelector(".kv-scene-gallery");
       const stopBloom = !gallery || media.matches ? () => {} : inView(gallery, () => {
         const lotus = gallery.querySelector(".kv-botanical-one");
@@ -60,7 +64,7 @@ export default function useSectionMotion(ref: RefObject<HTMLDivElement | null>) 
       document.addEventListener("visibilitychange", schedule);
       schedule();
       disposeMotion = () => {
-        cancelAnimationFrame(frame); stopReveal(); stopAccent(); stopBloom();
+        cancelAnimationFrame(frame); stopReveal(); stopAccent(); stopBloom(); stopHeadings();
         window.removeEventListener("scroll", schedule); window.removeEventListener("resize", schedule);
         document.removeEventListener("visibilitychange", schedule);
         animations.forEach(control => control.complete()); animations.clear();

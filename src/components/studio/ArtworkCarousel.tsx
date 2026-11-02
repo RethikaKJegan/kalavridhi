@@ -1,10 +1,11 @@
 "use client";
 
 import Image from "next/image";
-import { useRef, useState, useSyncExternalStore, type CSSProperties } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore, type CSSProperties } from "react";
 import { AnimatePresence, motion, useIsPresent, useMotionValue, useReducedMotion, useSpring } from "motion/react";
 import useDeckGesture from "./useDeckGesture";
-import { ArrowLeft, ArrowRight, ArrowUpRight } from "lucide-react";
+import useCarouselPlayback from "./useCarouselPlayback";
+import { ArrowLeft, ArrowRight, ArrowUpRight, Pause, Play } from "lucide-react";
 import type { Artwork } from "@/lib/server-data";
 
 const artworkColours: Record<string, [string, string, string]> = {
@@ -45,6 +46,7 @@ function ArtworkSheet({ artwork, index, total, direction, onOpen }: { artwork: A
   return <motion.button className="kv-art-sheet kv-art-motion" aria-label={`View ${artwork.title}`} disabled={!present} tabIndex={present ? 0 : -1} aria-hidden={!present}
     custom={direction} variants={{ enter: (step: number) => ({ opacity: .35, x: reduced ? 0 : step * 30, scale: reduced ? 1 : .97 }), center: { opacity: 1, x: 0, scale: 1 }, leave: (step: number) => ({ opacity: 0, x: reduced ? 0 : -step * 28, scale: reduced ? 1 : .96 }) }}
     initial="enter" animate="center" exit="leave" transition={{ duration: reduced ? .12 : .38, ease: [.22, 1, .36, 1] }}
+    whileHover={!reduced && fine ? { y: -5 } : undefined}
     style={{ rotateX: reduced || !fine ? 0 : rotateX, rotateY: reduced || !fine ? 0 : rotateY }}
     onPointerMove={event => {
       if (reduced || !fine || event.pointerType !== "mouse") return;
@@ -57,7 +59,7 @@ function ArtworkSheet({ artwork, index, total, direction, onOpen }: { artwork: A
       <Image unoptimized src={artwork.image} alt={artwork.alt} fill sizes="(max-width: 760px) 85vw, 630px" />
     </motion.span>
     <span className="kv-paper-curl" aria-hidden="true"/>
-    <span className="kv-art-sheet-bottom"><span>{artwork.artForm}</span><ArrowUpRight size={19} /></span>
+    <span className="kv-art-sheet-bottom"><span>{artwork.title}</span><ArrowUpRight size={19} /></span>
   </motion.button>;
 }
 
@@ -81,9 +83,11 @@ export default function ArtworkCarousel({ artworks, onOpen }: { artworks: Artwor
     if (keepFocus) carouselRef.current?.focus({ preventScroll: true });
   };
   const gesture = useDeckGesture(step => go(step));
+  const playback = useCarouselPlayback(carouselRef, () => go(1), 2000, total);
+  useEffect(() => { window.dispatchEvent(new Event("kv:artwork-change")); }, [active?.id]);
   if (!active) return <p className="kv-empty">New work is on its way. Explore another category.</p>;
 
-  return <div ref={carouselRef} className="kv-art-carousel kv-reveal" style={palette} role="region" aria-roledescription="carousel" aria-label="Selected artworks" tabIndex={0}
+  return <div ref={carouselRef} className="kv-art-carousel kv-reveal" style={palette} role="region" aria-roledescription="carousel" aria-label="Selected artworks" tabIndex={0} {...playback.events}
     onKeyDown={event => { if (event.key === "ArrowRight") { event.preventDefault(); go(1); } else if (event.key === "ArrowLeft") { event.preventDefault(); go(-1); } }}>
     <div className="kv-art-stage" {...gesture}>
       <div className="kv-art-ambient" aria-hidden="true" />
@@ -94,7 +98,7 @@ export default function ArtworkCarousel({ artworks, onOpen }: { artworks: Artwor
         <ArtworkSheet key={active.id} artwork={active} index={index} total={total} direction={direction} onOpen={onOpen}/>
       </AnimatePresence>
     </div>
-    <div className="kv-art-story" aria-live="polite" aria-atomic="true">
+    <div className="kv-art-story" aria-live={playback.live} aria-atomic="true">
       <p className="kv-art-story-kicker">SELECTED WORK <span /> {active.category.toUpperCase()}</p>
       <motion.h3 key={active.id} initial={{ opacity: .6, y: reduced ? 0 : 5 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: .3 }}>{active.title}</motion.h3>
       <p className="kv-art-medium">{active.medium || active.artForm}</p>
@@ -103,6 +107,7 @@ export default function ArtworkCarousel({ artworks, onOpen }: { artworks: Artwor
       <div className="kv-art-pagination"><div><button onClick={() => go(-1)} disabled={total < 2} aria-label="Previous artwork"><ArrowLeft size={20} /></button><button onClick={() => go(1)} disabled={total < 2} aria-label="Next artwork"><ArrowRight size={20} /></button></div><span>{String(index + 1).padStart(2, "0")} <i /> {String(total).padStart(2, "0")}</span></div>
       <div className="kv-art-progress" aria-hidden="true"><span style={{ width: `${((index + 1) / total) * 100}%` }} /></div>
       <p className="kv-art-hint">Use the arrows or swipe to explore.</p>
+      {!playback.reduced && total > 1 && <button className="kv-playback" onClick={playback.toggle} aria-label={`${playback.paused ? "Play" : "Pause"} selected artworks`}>{playback.paused ? <Play size={14}/> : <Pause size={14}/>}<span>{playback.paused ? "Play slideshow" : "Pause slideshow"}</span></button>}
     </div>
   </div>;
 }

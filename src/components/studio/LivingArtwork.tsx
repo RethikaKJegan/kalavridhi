@@ -1,37 +1,46 @@
 "use client";
 
-import { useEffect, useId, useRef, useState } from "react";
-import { RotateCcw } from "lucide-react";
-import { useReducedMotion } from "motion/react";
-import DecorativeAsset from "./DecorativeAsset";
+import Image from "next/image";
+import { useEffect, useRef, type CSSProperties } from "react";
+import { animate } from "motion";
 import "./living-artwork.css";
 
-export default function LivingArtwork({ variant = "hero" }: { variant?: "hero" | "footer" }) {
-  const host = useRef<HTMLDivElement>(null);
-  const api = useRef<{ dispose: () => void; replay: () => void } | null>(null);
-  const [ready, setReady] = useState(false);
-  const reduced = useReducedMotion();
-  const budId = `bud-${useId().replace(/:/g, "")}`;
-  useEffect(() => {
-    let cancelled = false;
-    let started = false;
-    const loader = new IntersectionObserver(([entry]) => {
-      if (!entry.isIntersecting || started) return;
-      started = true; loader.disconnect();
-      void import("./botanicalScene").then(({ mountBotanicalScene }) => {
-        if (!cancelled && host.current) api.current = mountBotanicalScene(host.current, variant, value => { if (!cancelled) setReady(value); });
-      }).catch(() => {});
-    }, { rootMargin: "200px" });
-    if (host.current) loader.observe(host.current);
-    return () => { cancelled = true; loader.disconnect(); api.current?.dispose(); api.current = null; };
-  }, [variant]);
-  return <div className={`kv-living-artwork kv-living-${variant}`} data-ready={ready}>
-    <div ref={host} className="kv-botanical-stage" aria-hidden="true">{variant === "footer" ? <DecorativeAsset name="lotus-sprig-v2" className="kv-lotus-fallback"/> : <svg className="kv-lotus-fallback" viewBox="0 0 240 320" fill="none">
-      <defs><linearGradient id={budId} x1=".3" y1="0" x2=".7" y2="1"><stop stopColor="#cf397c"/><stop offset=".5" stopColor="#e78dad"/><stop offset="1" stopColor="#f4d5d9"/></linearGradient></defs>
-      <path d="M120 312C108 260 132 225 120 180" stroke="#637d56" strokeWidth="3"/>
-      <path d="M120 80C65 112 83 163 120 190C157 163 175 112 120 80Z" fill={`url(#${budId})`}/>
-      <path d="M120 84C100 130 111 168 120 187M120 84C142 131 130 165 120 187" stroke="#ac386a" strokeWidth=".7" opacity=".5"/>
-    </svg>}</div>
-    {variant === "hero" && ready && !reduced && <button className="kv-bloom-replay" onClick={() => api.current?.replay()} aria-label="Replay the lotus bloom"><RotateCcw size={13}/><span>Bloom again</span></button>}
-  </div>;
+const petals = [[-78,.86,1],[-51,.97,.96],[-26,.86,1.04],[0,.72,1.08],[29,.87,1.01],[55,.98,.94],[82,.88,.93],[-105,.78,.76],[-61,.82,.72],[-25,.78,.72],[19,.8,.74],[61,.81,.7],[104,.78,.72]];
+
+export default function LivingArtwork({variant="hero"}:{variant?:"hero"|"footer"}) {
+  const host=useRef<HTMLDivElement>(null),flower=useRef<HTMLDivElement>(null);
+  useEffect(()=>{
+    const node=host.current,bloom=flower.current;if(!node||!bloom)return;
+    const media=matchMedia("(prefers-reduced-motion:reduce)");
+    const elements=Array.from(bloom.querySelectorAll<HTMLElement>(".kv-painted-petal"));
+    let opened=variant==="footer",visible=false;
+    const controls=new Set<ReturnType<typeof animate>>();
+    const open=()=>{
+      if(opened||media.matches)return;opened=true;node.dataset.bloom="opening";
+      elements.forEach((petal,i)=>{
+        const [angle,sx,sy]=petals[i];
+        const control=animate(petal,{rotate:[angle*.08,angle],scaleX:[.3,sx],scaleY:[.72,sy]}, {duration:3.4,delay:.25+i*.045,ease:[.22,1,.36,1]});controls.add(control);
+        void control.then(()=>{controls.delete(control);if(i===elements.length-1)node.dataset.bloom="open";});
+      });
+    };
+    const place=()=>{
+      if(variant!=="hero")return;
+      const width=node.clientWidth,height=node.clientHeight,scale=Math.min(width/1484,height/1060),x=(width-1484*scale)/2,y=matchMedia("(max-width:767px)").matches?height-1060*scale:0;
+      bloom.style.left=`${x+310*scale}px`;bloom.style.top=`${y+640*scale}px`;bloom.style.width=`${400*scale}px`;bloom.style.height=`${390*scale}px`;
+    };
+    const pause=()=>{
+      const running=visible&&!document.hidden&&!document.getElementById("kv-content")?.hasAttribute("inert")&&!media.matches;
+      node.dataset.active=String(running);controls.forEach(control=>running?control.play():control.pause());
+    };
+    const observer=new IntersectionObserver(([entry])=>{visible=entry.isIntersecting&&entry.intersectionRatio>=.2;if(visible)open();pause();},{threshold:.2});observer.observe(node);
+    const resize=new ResizeObserver(place);resize.observe(node);place();
+    const modal=new MutationObserver(pause),content=document.getElementById("kv-content");if(content)modal.observe(content,{attributes:true,attributeFilter:["inert"]});
+    const reduce=()=>{if(media.matches){controls.forEach(c=>c.complete());elements.forEach((petal,i)=>{const[a,x,y]=petals[i];petal.style.transform=`rotate(${a}deg) scale(${x},${y})`;});opened=true;node.dataset.bloom="open";}pause();};
+    media.addEventListener("change",reduce);document.addEventListener("visibilitychange",pause);reduce();
+    return()=>{observer.disconnect();resize.disconnect();modal.disconnect();controls.forEach(c=>c.stop());media.removeEventListener("change",reduce);document.removeEventListener("visibilitychange",pause);};
+  },[variant]);
+  return <div ref={host} className={`kv-living-artwork kv-living-${variant}`} data-bloom={variant==="footer"?"open":"bud"} aria-hidden="true"><div ref={flower} className="kv-painted-lotus"><div className="kv-lotus-sway">
+    <svg className="kv-painted-stem" viewBox="0 0 400 390" fill="none"><path d="M205 389C185 350 222 316 200 276" stroke="#53764e" strokeWidth="3"/><path d="M204 356C160 363 150 328 126 320C159 312 191 325 204 356Z" fill="#718b60" opacity=".9"/><path d="M203 355L141 325" stroke="#d3c998" strokeWidth="1"/></svg>
+    {petals.map(([angle,sx,sy],i)=><span className="kv-painted-petal" key={i} style={{"--petal-angle":`${angle}deg`,"--petal-x":sx,"--petal-y":sy,transform:variant==="footer"?`rotate(${angle}deg) scale(${sx},${sy})`:`rotate(${angle*.08}deg) scale(.3,.72)`} as CSSProperties}><Image unoptimized src="/images/decoration/lotus-painted-petal-v1.webp" alt="" width={320} height={640} loading={variant==="hero"?"eager":"lazy"}/></span>)}
+  </div></div></div>;
 }

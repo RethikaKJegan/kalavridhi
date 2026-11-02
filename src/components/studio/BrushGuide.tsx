@@ -1,195 +1,91 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import type { BufferGeometry, Material } from "three";
 
-const stops = ["home", "about", "gallery", "workshops", "recognition", "contact"];
-
-
-/** True 3D brush modeled after the supplied burgundy / brass / pink-bristle reference. */
-export default function BrushGuide() {
-  const [enabled, setEnabled] = useState(false);
-  useEffect(() => {
-    const media = matchMedia("(min-width: 960px) and (pointer: fine) and (prefers-reduced-motion: no-preference)");
-    const update = () => setEnabled(media.matches);
-    const frame = requestAnimationFrame(update);
-    media.addEventListener("change", update);
-    return () => { cancelAnimationFrame(frame); media.removeEventListener("change", update); };
-  }, []);
-  return enabled ? <BrushRenderer/> : null;
+const mediaQuery="(min-width:960px) and (pointer:fine) and (prefers-reduced-motion:no-preference)";
+const stops=["home","about","gallery","workshops","recognition","contact"];
+export default function BrushGuide(){
+  const [enabled,setEnabled]=useState(false);
+  useEffect(()=>{const media=matchMedia(mediaQuery),update=()=>setEnabled(media.matches),frame=requestAnimationFrame(update);media.addEventListener("change",update);return()=>{cancelAnimationFrame(frame);media.removeEventListener("change",update);};},[]);
+  return enabled?<TravellingBrush/>:null;
 }
-
-function BrushRenderer() {
-  const host = useRef<HTMLDivElement>(null);
-  useEffect(() => {
-    const element = host.current;
-    if (!element || !matchMedia("(min-width: 960px) and (prefers-reduced-motion: no-preference)").matches) return;
-    let disposed = false;
-    let dispose = () => {};
-
-    void (async () => {
-      const [THREE, { gsap }] = await Promise.all([import("three"), import("gsap")]);
-      if (disposed || !element.isConnected) return;
-      let renderer: InstanceType<typeof THREE.WebGLRenderer>;
-      try { renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true, powerPreference: "low-power" }); }
-      catch { return; }
-      renderer.setPixelRatio(Math.min(devicePixelRatio, 1.5));
-      renderer.setSize(220, 220);
-      renderer.outputColorSpace = THREE.SRGBColorSpace;
+function TravellingBrush(){
+  const host=useRef<HTMLDivElement>(null);
+  useEffect(()=>{
+    const element=host.current;if(!element)return;
+    let disposed=false,cleanup=()=>{};
+    void Promise.all([import("three"),import("motion"),import("./botanicalScene")]).then(async([THREE,{animate,motionValue},{makeBrush}])=>{
+      if(disposed)return;
+      let renderer:InstanceType<typeof THREE.WebGLRenderer>;
+      try{renderer=new THREE.WebGLRenderer({alpha:true,antialias:true,powerPreference:"low-power"});}catch{return;}
+      renderer.setSize(380,380);renderer.setPixelRatio(Math.min(devicePixelRatio,1.25));renderer.outputColorSpace=THREE.SRGBColorSpace;
       element.prepend(renderer.domElement);
-
-      const scene = new THREE.Scene();
-      const camera = new THREE.PerspectiveCamera(34, 1, .1, 100);
-      camera.position.set(0, 0, 6.4);
-      const brush = new THREE.Group(); scene.add(brush);
-      scene.add(new THREE.HemisphereLight(0xffffff, 0x8794ad, 1.65));
-      const key = new THREE.DirectionalLight(0xfff5e9, 2.3); key.position.set(-3, 4, 5); scene.add(key);
-      const edge = new THREE.DirectionalLight(0xb9d6ff, 1.2); edge.position.set(3, -1, -2); scene.add(edge);
-
-      const grain = document.createElement("canvas"); grain.width = 128; grain.height = 512;
-      const ctx = grain.getContext("2d")!; ctx.fillStyle = "#54212c"; ctx.fillRect(0, 0, 128, 512);
-      for (let i = 0; i < 170; i++) {
-        const x = (i * 79) % 128, y = (i * 137) % 512;
-        ctx.strokeStyle = i % 3 === 0 ? "#ba7a7860" : "#26172d55";
-        ctx.lineWidth = i % 6 === 0 ? 1.4 : .45;
-        ctx.beginPath(); ctx.moveTo(x, y); ctx.bezierCurveTo(x + 5, y + 35, x - 4, y + 70, x + 2, y + 135); ctx.stroke();
-      }
-      const grainTexture = new THREE.CanvasTexture(grain); grainTexture.colorSpace = THREE.SRGBColorSpace;
-      const handle = new THREE.MeshPhysicalMaterial({ map: grainTexture, roughness: .27, clearcoat: .75, clearcoatRoughness: .2 });
-      const ferrule = new THREE.MeshStandardMaterial({ color: 0xc89b4d, metalness: .8, roughness: .24 });
-      const ridge = new THREE.MeshStandardMaterial({ color: 0xe7c77c, metalness: .8, roughness: .2 });
-      const natural = new THREE.MeshStandardMaterial({ color: 0x795438, roughness: .9, side: THREE.DoubleSide });
-      const inked = new THREE.MeshStandardMaterial({ color: 0xe38aab, roughness: .77, side: THREE.DoubleSide });
-      const add = (geometry: BufferGeometry, material: Material, y: number) => {
-        const mesh = new THREE.Mesh(geometry, material); mesh.position.y = y; brush.add(mesh); return mesh;
+      const scene=new THREE.Scene(),camera=new THREE.PerspectiveCamera(34,1,.1,100);camera.position.z=6.4;
+      const model=makeBrush(),brush=model.root;scene.add(brush);
+      scene.add(new THREE.HemisphereLight(0xfff9ee,0x90818a,1.7));const light=new THREE.DirectionalLight(0xfff4dc,2.1);light.position.set(-3,4,5);scene.add(light);
+      const content=document.getElementById("kv-content");
+      let lost=false,warmed=false,frame=0,paintTimer:ReturnType<typeof setTimeout>|undefined,painting=false,contactHover=false,previous="";
+      const x=motionValue(0),y=motionValue(0),angle=motionValue(-.5),progress=motionValue(0);
+      const movements:ReturnType<typeof animate>[]=[];
+      let stroke:ReturnType<typeof animate>|undefined,path:SVGPathElement|null=null,offProgress=()=>{};
+      const painted=new Set<string>();
+      const blocked=()=>disposed||lost||document.hidden||content?.hasAttribute("inert");
+      const render=()=>{if(warmed&&!blocked())renderer.render(scene,camera);};
+      const position=()=>{element.style.transform=`translate3d(${x.get()}px,${y.get()}px,0)`;};
+      const offX=x.on("change",position),offY=y.on("change",position),offAngle=angle.on("change",value=>{brush.rotation.set(.1,-.2,value);render();});
+      const finishPaint=()=>{if(paintTimer)clearTimeout(paintTimer);paintTimer=undefined;stroke?.stop();offProgress();if(path){path.style.removeProperty("stroke-dasharray");path.style.removeProperty("stroke-dashoffset");}path=null;painting=false;model.tuft.morphTargetInfluences![0]=0;element.dataset.action="settled";};
+      const stopMoves=()=>{movements.forEach(c=>c.stop());movements.length=0;};
+      const baseX=()=>innerWidth-198,baseY=()=>innerHeight*.22+190;
+      const paint=(section:HTMLElement)=>{
+        if(!["home","workshops","recognition"].includes(section.id)||painted.has(section.id))return;
+        paintTimer=setTimeout(()=>{
+          if(blocked()||element.dataset.stop!==section.id)return;
+          const candidate=section.querySelector<SVGPathElement>(".kv-painted-stroke path"),matrix=candidate?.getScreenCTM(),rect=candidate?.getBoundingClientRect();
+          if(!candidate||!matrix||!rect||rect.top<105||rect.bottom>innerHeight-50)return;
+          path=candidate;painted.add(section.id);painting=true;stopMoves();brush.position.x=0;angle.set(-.53);brush.updateMatrixWorld(true);
+          const tip=new THREE.Vector3(0,-1.98,0).applyMatrix4(brush.matrixWorld).project(camera),offsetX=tip.x*190,offsetY=-tip.y*190,length=path.getTotalLength();
+          path.removeAttribute("pathLength");path.style.strokeDasharray=`${length}`;path.style.strokeDashoffset=`${length}`;
+          element.dataset.action="approaching";progress.set(0);
+          const start=path.getPointAtLength(0);
+          const approach=animate(y,start.x*matrix.b+start.y*matrix.d+matrix.f-offsetY-baseY(),{duration:.45,ease:[.4,0,.2,1]});
+          movements.push(animate(x,start.x*matrix.a+start.y*matrix.c+matrix.e-offsetX-baseX(),{duration:.45,ease:[.4,0,.2,1]}),approach);
+          void approach.then(()=>{
+            if(!painting||blocked())return;element.dataset.action="painting";
+            offProgress=progress.on("change",value=>{if(!path)return;const p=path.getPointAtLength(value*length);x.set(p.x*matrix.a+p.y*matrix.c+matrix.e-offsetX-baseX());y.set(p.x*matrix.b+p.y*matrix.d+matrix.f-offsetY-baseY());path.style.strokeDashoffset=`${length*(1-value)}`;model.tuft.morphTargetInfluences![0]=Math.sin(value*Math.PI)*.55;render();});
+            stroke=animate(progress,1,{duration:.95,ease:[.4,0,.2,1]});void stroke.then(()=>{finishPaint();previous="";schedule();});
+          });
+        },300);
       };
-      const profile = [[0, -.76], [.082, -.74], [.084, -.62], [.069, -.38], [.065, .16], [.059, .7], [.047, 1.1], [.034, 1.39], [.013, 1.55], [0, 1.58]].map(([radius, y]) => new THREE.Vector2(radius, y));
-      add(new THREE.LatheGeometry(profile, 28), handle, 0);
-      const metal = add(new THREE.CylinderGeometry(.079, .103, .49, 24), ferrule, -.985); metal.scale.x = .86;
-      for (const y of [-.755, -1.13, -1.215]) {
-        const ring = add(new THREE.TorusGeometry(y === -1.215 ? .098 : .081, .008, 7, 24), ridge, y);
-        ring.rotation.x = Math.PI / 2; ring.scale.x = .86;
-      }
-      const core = add(new THREE.ConeGeometry(.087, .61, 20), natural, -1.515);
-      core.rotation.z = Math.PI; core.scale.x = .84;
-
-      const strands = new THREE.InstancedMesh(new THREE.ConeGeometry(.009, .6, 5), natural, 48);
-      const dipped = new THREE.InstancedMesh(new THREE.ConeGeometry(.006, .19, 5), inked, 21);
-      const dummy = new THREE.Object3D(), shade = new THREE.Color();
-      for (let i = 0; i < 48; i++) {
-        const radius = .011 + Math.sqrt(i / 48) * .063, angle = i * 2.39996;
-        dummy.position.set(Math.cos(angle) * radius, -1.49 - (i % 5) * .012, Math.sin(angle) * radius * .82);
-        dummy.rotation.set(Math.sin(angle) * .06, 0, Math.PI + Math.cos(angle) * .055);
-        dummy.scale.set(1, .87 + (i % 7) * .025, 1); dummy.updateMatrix(); strands.setMatrixAt(i, dummy.matrix);
-        shade.set(i % 4 === 0 ? 0xb79065 : i % 4 === 1 ? 0x5b3928 : 0x926844); strands.setColorAt(i, shade);
-      }
-      for (let i = 0; i < 21; i++) {
-        const radius = Math.sqrt(i / 21) * .039, angle = i * 2.39996;
-        dummy.position.set(Math.cos(angle) * radius, -1.775 + (i % 4) * .01, Math.sin(angle) * radius * .8);
-        dummy.rotation.set(Math.sin(angle) * .045, 0, Math.PI);
-        dummy.scale.set(1, .78 + (i % 5) * .05, 1); dummy.updateMatrix(); dipped.setMatrixAt(i, dummy.matrix);
-      }
-      brush.add(strands, dipped); brush.rotation.set(.1, -.26, -.31);
-
-      // Render only during movement; no permanent animation loop.
-      let lost = false;
-      const content = document.getElementById("kv-content");
-      const render = () => { if (!document.hidden && !lost && !content?.hasAttribute("inert")) renderer.render(scene, camera); };
-      let frame = 0;
-      let previousStop = "", previousX = -Infinity, previousY = -Infinity;
-      const painted = new Set<string>();
-      let pendingPaint: ReturnType<typeof gsap.delayedCall> | undefined;
-      let painting: ReturnType<typeof gsap.to> | undefined;
-      let paintedPath: SVGPathElement | undefined;
-      const finishStroke = () => {
-        pendingPaint?.kill(); pendingPaint = undefined;
-        painting?.kill(); painting = undefined;
-        if (paintedPath) { paintedPath.style.removeProperty("stroke-dasharray"); paintedPath.style.removeProperty("stroke-dashoffset"); paintedPath = undefined; }
-        element.dataset.action = "resting";
+      const move=()=>{
+        frame=0;if(blocked()||!warmed)return;finishPaint();
+        const middle=innerHeight*.52;
+        const sections=stops.map(id=>document.getElementById(id)).filter((n):n is HTMLElement=>!!n);
+        const section=sections.find(n=>{const r=n.getBoundingClientRect();return r.top<=middle&&r.bottom>middle;})??sections.find(n=>{const r=n.getBoundingClientRect();return r.bottom>0&&r.top<innerHeight;});if(!section)return;
+        const selector=section.id==="about"?".kv-portrait":section.id==="gallery"?".kv-art-stage":section.id==="contact"?".kv-footer-cta .kv-pill":"h1,h2";
+        const target=section.querySelector(selector)??section,rect=target.getBoundingClientRect(),beside=section.id==="about"||section.id==="gallery";
+        const sideDock=section.id==="workshops"||section.id==="recognition"||(section.id==="gallery"&&rect.top<300)||(section.id==="about"&&rect.top<120);
+        brush.position.x=sideDock?1.6:0;
+        const centerX=Math.max(200,Math.min(innerWidth-200,sideDock?innerWidth-205:section.id==="gallery"?rect.right-20:section.id==="about"?rect.right+28:section.id==="contact"?rect.left-(contactHover?95:125):innerWidth-205));
+        const centerY=Math.max(200,Math.min(innerHeight-200,sideDock?innerHeight*.5:beside?rect.top-100:section.id==="contact"?rect.top-100:rect.top+90));
+        const targetX=section.id==="about"?rect.right-10:beside?rect.left+rect.width*.65:section.id==="contact"?rect.left-28:rect.left+rect.width*.8;
+        const targetY=Math.max(100,Math.min(innerHeight-70,beside?rect.top+rect.height*.5:rect.bottom));
+        const rotation=section.id==="home"?-.48:sideDock?0:Math.max(-2.5,Math.min(.7,Math.atan2(targetX-centerX,targetY-centerY)));
+        const signature=`${section.id}:${Math.round(centerX/6)}:${Math.round(centerY/6)}:${Math.round(rotation*30)}:${contactHover}`;
+        element.dataset.stop=section.id;paint(section);
+        if(signature===previous)return;previous=signature;stopMoves();element.style.opacity="1";
+        movements.push(animate(x,centerX-baseX(),{duration:.85,ease:[.22,1,.36,1]}),animate(y,centerY-baseY(),{duration:.85,ease:[.22,1,.36,1]}),animate(angle,rotation,{duration:.85,ease:[.22,1,.36,1]}));render();
       };
-      const queueStroke = (section: HTMLElement) => {
-        pendingPaint?.kill();
-        if (painted.has(section.id)) return;
-        pendingPaint = gsap.delayedCall(.3, () => {
-          if (document.hidden || content?.hasAttribute("inert") || element.dataset.stop !== section.id) return;
-          const path = section.querySelector<SVGPathElement>(".kv-painted-stroke path");
-          const matrix = path?.getScreenCTM(), rect = path?.getBoundingClientRect();
-          if (!path || !matrix || !rect || rect.top < 110 || rect.bottom > innerHeight - 50) return;
-          painted.add(section.id); paintedPath = path;
-          element.dataset.action = "painting";
-          gsap.killTweensOf(element); gsap.killTweensOf(brush.rotation);
-          gsap.set(element, { opacity: 1 });
-          brush.rotation.set(.1, -.3, -.55); brush.updateMatrixWorld(true);
-          const tip = new THREE.Vector3(0, -1.87, 0).applyMatrix4(brush.matrixWorld).project(camera);
-          const offsetX = tip.x * 110, offsetY = -tip.y * 110;
-          const length = path.getTotalLength(), state = { progress: 0 };
-          path.style.strokeDasharray = `${length}`; path.style.strokeDashoffset = `${length}`;
-          painting = gsap.to(state, { progress: 1, duration: section.id === "contact" ? 1 : .8, ease: "sine.inOut", onUpdate: () => {
-            const point = path.getPointAtLength(state.progress * length);
-            const screenX = point.x * matrix.a + point.y * matrix.c + matrix.e;
-            const screenY = point.x * matrix.b + point.y * matrix.d + matrix.f;
-            gsap.set(element, { x: screenX - offsetX - (innerWidth - 118), y: screenY - offsetY - (innerHeight * .3 + 110) });
-            path.style.strokeDashoffset = `${length * (1 - state.progress)}`;
-            render();
-          }, onComplete: () => { finishStroke(); previousX = -Infinity; schedule(); } });
-        });
-      };
-      const move = () => {
-        frame = 0;
-        if (document.hidden || !element.isConnected) return;
-        if (painting) finishStroke();
-        const sections = stops.map(id => document.getElementById(id)).filter((node): node is HTMLElement => !!node);
-        const active = sections.find(node => { const r = node.getBoundingClientRect(); return r.top <= innerHeight * .55 && r.bottom > innerHeight * .55; })
-          ?? sections.find(node => {const r=node.getBoundingClientRect();return r.bottom>0 && r.top<innerHeight;});
-        if (!active) return;
-        queueStroke(active);
-        const selector = active.id === "about" ? ".kv-portrait" : active.id === "gallery" ? ".kv-art-stage" : "h1,h2";
-        const target = active.querySelector(selector) ?? active;
-        const rect = target.getBoundingClientRect();
-        const isGap = active.id === "about" || active.id === "gallery";
-        const targetY = Math.max(110, Math.min(innerHeight * .72, rect.top + Math.min(rect.height * .5, 110)));
-        const clippedGap = isGap && rect.top < 220;
-        const centerX = isGap && !clippedGap ? Math.min(innerWidth - 122, rect.right + (active.id === "gallery" ? 32 : 70)) : innerWidth - 122;
-        const footerButton = active.id === "contact" ? active.querySelector(".kv-footer-cta .kv-pill")?.getBoundingClientRect() : undefined;
-        const dockY = isGap ? clippedGap ? rect.bottom + 80 : rect.top - 45 : footerButton ? footerButton.top - 80 : targetY - 15;
-        const centerY = Math.max(145, Math.min(innerHeight - 145, dockY));
-        const x = centerX - (innerWidth - 118);
-        const y = centerY - (innerHeight * .3 + 110);
-        const targetX = isGap ? rect.right - 30 : Math.min(rect.right - 20, centerX - 100);
-        const angle = Math.max(-2.6, Math.min(-.25, Math.atan2(targetX - centerX, targetY - centerY)));
-        const changed = previousStop !== active.id;
-        if (!changed && Math.abs(x - previousX) < 6 && Math.abs(y - previousY) < 6) return;
-        previousStop = active.id; previousX = x; previousY = y;
-        element.dataset.stop = active.id;
-        inked.color.set(active.id === "recognition" ? 0xd8b060 : 0xe38aab);
-        gsap.to(element, { x, y, opacity: clippedGap && rect.bottom + 90 > innerHeight - 90 ? 0 : 1, duration: changed ? .95 : .5, ease: 'power2.out', overwrite: true, onUpdate: render });
-        gsap.to(brush.rotation, { z: angle, x: active.id === "gallery" ? -.12 : .1, y: active.id === "contact" ? .18 : -.3, duration: changed ? 1 : .6, ease: 'power2.out', overwrite: true, onUpdate: render });
-      };
-      const schedule = () => { if (!frame) frame = requestAnimationFrame(move); };
-      const visibility = () => { if (document.hidden) { finishStroke(); if(frame)cancelAnimationFrame(frame);frame=0;gsap.killTweensOf(element);gsap.killTweensOf(brush.rotation); } else schedule(); };
-      window.addEventListener('scroll', schedule, {passive:true});
-      window.addEventListener('resize', schedule);
-      window.addEventListener('kv:scene-change', schedule);
-      document.addEventListener('visibilitychange', visibility);
-      const contextLost = (event: Event) => { event.preventDefault(); lost = true; finishStroke(); gsap.killTweensOf(element); gsap.killTweensOf(brush.rotation); };
-      const contextRestored = () => { lost = false; previousX = -Infinity; schedule(); };
-      renderer.domElement.addEventListener("webglcontextlost", contextLost);
-      renderer.domElement.addEventListener("webglcontextrestored", contextRestored);
-      const modalObserver = new MutationObserver(() => { finishStroke(); if (!content?.hasAttribute("inert")) { previousX = -Infinity; schedule(); } });
-      if (content) modalObserver.observe(content, { attributes: true, attributeFilter: ["inert"] });
-      schedule();
-      dispose = () => {
-        finishStroke(); modalObserver.disconnect(); gsap.killTweensOf(element); gsap.killTweensOf(brush.rotation);
-        cancelAnimationFrame(frame);
-        window.removeEventListener("scroll", schedule); window.removeEventListener("resize", schedule); document.removeEventListener("visibilitychange", visibility);
-        window.removeEventListener("kv:scene-change", schedule);
-        renderer.domElement.removeEventListener("webglcontextlost", contextLost); renderer.domElement.removeEventListener("webglcontextrestored", contextRestored);
-        brush.traverse(object => { if (object instanceof THREE.Mesh) object.geometry.dispose(); });
-        [handle, ferrule, ridge, natural, inked].forEach(material => material.dispose());
-        grainTexture.dispose(); renderer.dispose(); renderer.domElement.remove();
-      };
-    })();
-    return () => { disposed = true; dispose(); };
-  }, []);
-  return <div ref={host} className="kv-brush-guide kv-reference-brush" aria-hidden="true" />;
+      const schedule=()=>{if(!frame&&!painting)frame=requestAnimationFrame(move);else if(painting){finishPaint();if(!frame)frame=requestAnimationFrame(move);}};
+      const visibility=()=>{if(blocked()){finishPaint();stopMoves();cancelAnimationFrame(frame);frame=0;element.style.opacity="0";}else{previous="";schedule();}};
+      const hover=(event:PointerEvent)=>{const next=!!(event.target as Element)?.closest?.(".kv-footer-cta .kv-pill");if(next!==contactHover){contactHover=next;schedule();}};
+      const loss=(event:Event)=>{event.preventDefault();lost=true;visibility();};const restore=()=>{lost=false;visibility();};
+      const modal=new MutationObserver(visibility);if(content)modal.observe(content,{attributes:true,attributeFilter:["inert"]});
+      window.addEventListener("scroll",schedule,{passive:true});window.addEventListener("resize",schedule);window.addEventListener("kv:scene-change",schedule);window.addEventListener("kv:artwork-change",schedule);window.addEventListener("pointerover",hover,{passive:true});document.addEventListener("visibilitychange",visibility);
+      renderer.domElement.addEventListener("webglcontextlost",loss);renderer.domElement.addEventListener("webglcontextrestored",restore);
+      cleanup=()=>{finishPaint();stopMoves();offX();offY();offAngle();modal.disconnect();cancelAnimationFrame(frame);window.removeEventListener("scroll",schedule);window.removeEventListener("resize",schedule);window.removeEventListener("kv:scene-change",schedule);window.removeEventListener("kv:artwork-change",schedule);window.removeEventListener("pointerover",hover);document.removeEventListener("visibilitychange",visibility);renderer.domElement.removeEventListener("webglcontextlost",loss);renderer.domElement.removeEventListener("webglcontextrestored",restore);const geometries=new Set<InstanceType<typeof THREE.BufferGeometry>>(),materials=new Set<InstanceType<typeof THREE.Material>>();brush.traverse(object=>{if(object instanceof THREE.Mesh){geometries.add(object.geometry);(Array.isArray(object.material)?object.material:[object.material]).forEach(m=>materials.add(m));}});geometries.forEach(g=>g.dispose());materials.forEach(m=>m.dispose());model.texture.dispose();renderer.dispose();renderer.domElement.remove();};
+      await renderer.compileAsync(scene,camera);if(disposed)return;warmed=true;schedule();
+    }).catch(()=>{});
+    return()=>{disposed=true;cleanup();};
+  },[]);
+  return <div ref={host} className="kv-brush-guide kv-reference-brush" aria-hidden="true"/>;
 }

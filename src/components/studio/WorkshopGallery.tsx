@@ -2,9 +2,11 @@
 
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
-import { ArrowLeft, ArrowRight } from "lucide-react";
+import { ArrowLeft, ArrowRight, Pause, Play } from "lucide-react";
+import { AnimatePresence, motion } from "motion/react";
 import type { Workshop } from "@/lib/server-data";
 import useDeckGesture from "./useDeckGesture";
+import useCarouselPlayback from "./useCarouselPlayback";
 
 const moments = [
   { image: "workshop-creative-group.jpg", type: "WORKSHOP", alt: "Children and adults sharing artwork made during a creative workshop" },
@@ -21,7 +23,7 @@ export default function WorkshopGallery({ workshops = [] }: { workshops?: Worksh
   const [index, setIndex] = useState(0);
   const [visibleCount, setVisibleCount] = useState(3);
   const galleryRef = useRef<HTMLDivElement>(null);
-  const resumeAt = useRef(0);
+  const [direction, setDirection] = useState(1);
 
   useEffect(() => {
     const update = () => setVisibleCount(window.innerWidth <= 520 ? 1 : window.innerWidth <= 900 ? 2 : 3);
@@ -31,30 +33,34 @@ export default function WorkshopGallery({ workshops = [] }: { workshops?: Worksh
   }, []);
 
 
-  const move = (step: number, interactionTime: number) => {
-    resumeAt.current = interactionTime + 60_000;
+  const move = (step: number) => {
+    setDirection(step);
     setIndex(current => (current + step + photos.length) % photos.length);
   };
-  const gesture = useDeckGesture(step => move(step, performance.now()));
+  const gesture = useDeckGesture(step => move(step));
+  const playback = useCarouselPlayback(galleryRef, () => move(1), 2600, photos.length);
   const visibleMoments = Array.from({ length: Math.min(visibleCount, photos.length) }, (_, slot) => ({ ...photos[(index + slot) % photos.length], number: (index + slot) % photos.length + 1 }));
 
   return (
-    <div ref={galleryRef} className="kv-moments kv-reveal" role="region" aria-roledescription="carousel" aria-label="Workshop and exhibition photos">
-      <div className="kv-moment-track" aria-live="polite" aria-atomic="true" {...gesture}>
-      {visibleMoments.map((moment, slot) => (
-        <figure className="kv-moment-card" key={`${moment.image}-${slot}`}>
+    <div ref={galleryRef} className="kv-moments kv-reveal" role="region" aria-roledescription="carousel" aria-label="Workshop and exhibition photos" {...playback.events}>
+      <link rel="prefetch" as="image" href={photos[(index+visibleCount)%photos.length].image}/>
+      <div className="kv-moment-track" aria-live={playback.live} aria-atomic="true" {...gesture}>
+      <AnimatePresence initial={false} mode="popLayout" custom={direction}>
+      {visibleMoments.map(moment => (
+        <motion.figure layout="position" className="kv-moment-card" key={`${moment.image}-${moment.number}`} custom={direction} variants={{enter:(step:number)=>({x:playback.reduced?0:step*70,opacity:0}),exit:(step:number)=>({x:playback.reduced?0:-step*70,opacity:0})}} initial="enter" animate={{x:0,opacity:1}} exit="exit" transition={{duration:playback.reduced?.12:.75,ease:[.22,1,.36,1]}}>
           <div className="kv-moment-photo">
             <Image unoptimized src={moment.image} alt={moment.alt} fill sizes="(max-width: 760px) 90vw, (max-width: 1100px) 45vw, 30vw" />
             <span className="kv-moment-type">{moment.type}</span>
             <span className="kv-moment-index">{String(moment.number).padStart(2, "0")}</span>
           </div>
-        </figure>
+        </motion.figure>
       ))}
-      </div>
+      </AnimatePresence></div>
       <div className="kv-moments-controls">
         <span>{String(index + 1).padStart(2, "0")} — {String((index + visibleCount - 1) % photos.length + 1).padStart(2, "0")} <i /> {String(photos.length).padStart(2, "0")}</span>
-        <button type="button" onClick={event => move(-1, event.timeStamp)} aria-label="Previous workshop and exhibition photos"><ArrowLeft size={18} /></button>
-        <button type="button" onClick={event => move(1, event.timeStamp)} aria-label="Next workshop and exhibition photos"><ArrowRight size={18} /></button>
+        {!playback.reduced && <button type="button" className="kv-playback" onClick={playback.toggle} aria-label={`${playback.paused ? "Play" : "Pause"} workshop slideshow`}>{playback.paused ? <Play size={15}/> : <Pause size={15}/>}</button>}
+        <button type="button" onClick={() => move(-1)} aria-label="Previous workshop and exhibition photos"><ArrowLeft size={18} /></button>
+        <button type="button" onClick={() => move(1)} aria-label="Next workshop and exhibition photos"><ArrowRight size={18} /></button>
       </div>
     </div>
   );

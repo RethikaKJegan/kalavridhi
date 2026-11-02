@@ -1,16 +1,12 @@
-.kv-living-artwork,.kv-botanical-stage { position:absolute; inset:0; pointer-events:none; }
-.kv-botanical-stage canvas { display:block; width:100%; height:100%; }
-.kv-lotus-fallback { display:block; position:absolute; width:32%; height:48%; left:19%; bottom:0; pointer-events:none; }
-.kv-living-artwork[data-ready="true"] .kv-lotus-fallback { visibility:hidden; }
-.kv-bloom-replay { pointer-events:auto; position:absolute; left:26%; bottom:12px; z-index:8; display:flex; align-items:center; justify-content:center; gap:8px; min-height:44px; padding:8px 15px; border:1px solid #c9ac9b!important; border-radius:24px; background:#fffaf1ed; color:#263c5b; font-size:11px; box-shadow:0 4px 14px #543d2910; }
-.kv-bloom-replay:hover { background:#fff4f8; }
-.kv-approved .kv-hero-bottom { pointer-events:none; }
-.kv-approved .kv-hero-bottom a { pointer-events:auto; }
-.kv-living-footer { inset:auto; width:300px; height:330px; right:7%; top:10px; z-index:0; }
-.kv-living-footer .kv-lotus-fallback { inset:0; width:100%; height:100%; }
-.kv-approved .kv-footer { position:relative; }
-@media (max-width:767px) {
-  .kv-living-footer { width:150px; height:210px; right:-18px; top:110px; opacity:.82; }
-  .kv-bloom-replay { left:12px; bottom:0; font-size:10px; padding:6px 12px; }
-}
-@media (prefers-reduced-motion:reduce) { .kv-bloom-replay { display:none; } }
+.kv-living-artwork {position:absolute;inset:0;pointer-events:none}
+.kv-painted-lotus {position:absolute;width:260px;height:254px}
+.kv-lotus-sway {position:absolute;inset:0;transform-origin:50% 100%;animation:kv-painted-sway 8s ease-in-out infinite;animation-play-state:paused}
+.kv-living-artwork[data-active=true][data-bloom=open] .kv-lotus-sway {animation-play-state:running}
+.kv-painted-stem {position:absolute;inset:0;width:100%;height:100%}
+.kv-painted-petal {position:absolute;left:31.25%;bottom:28.2%;width:37.5%;height:71.8%;transform-origin:50% 100%}
+.kv-painted-petal img {width:100%;height:100%;object-fit:fill;display:block}
+.kv-living-footer {inset:auto;width:230px;height:224px;right:9%;top:15px;z-index:0}
+.kv-living-footer .kv-painted-lotus {inset:0;width:100%;height:100%}
+@keyframes kv-painted-sway {0%,100%{transform:rotate(-1deg)}50%{transform:rotate(1.2deg)}}
+@media(max-width:767px){.kv-living-footer{width:150px;height:146px;right:-4px;top:150px}.kv-living-footer .kv-lotus-sway{animation:none}}
+@media(prefers-reduced-motion:reduce){.kv-lotus-sway{animation:none}.kv-painted-petal{transform:rotate(var(--petal-angle)) scale(var(--petal-x),var(--petal-y))!important}}

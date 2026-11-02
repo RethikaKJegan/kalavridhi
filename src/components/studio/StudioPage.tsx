@@ -11,6 +11,8 @@ import { ART_FORMS, RECOGNITION } from "@/lib/data";
 import SceneDecor from "./SceneDecor";
 import HeroArtLayers from "./HeroArtLayers";
 import LivingArtwork from "./LivingArtwork";
+import BrushGuide from "./BrushGuide";
+import InkPointer from "./InkPointer";
 import InkCanvas from "./InkCanvas";
 import ArtworkCarousel from "./ArtworkCarousel";
 import WorkshopGallery from "./WorkshopGallery";
@@ -21,6 +23,7 @@ import "./studio-approved.css";
 import "./studio-phase-two.css";
 import "./studio-living.css";
 import "./studio-choreography.css";
+import "./studio-refinements.css";
 
 const navigation = [["The studio", "about"], ["Selected work", "gallery"], ["Workshops", "workshops"]];
 const categories = ["All", "Traditional", "Painting", "Drawing & Patterns", "Fabric & Crafts", "Kids"];
@@ -93,7 +96,7 @@ export default function StudioPage({artworks, workshops, settings}: {artworks: A
   };
 
   return <MotionConfig reducedMotion="user"><LayoutGroup id={layoutId}><div ref={studioRef} className="kv-studio kv-approved">
-    <InkCanvas/>
+    <InkCanvas/><InkPointer/><BrushGuide/>
     <div id="kv-content">
     <a className="kv-skip" href="#main">Skip to content</a>
     <header className="kv-header">
@@ -113,7 +116,7 @@ export default function StudioPage({artworks, workshops, settings}: {artworks: A
             <div className="kv-hero-actions"><Pill href="#gallery">Explore the artwork</Pill><Pill outline onClick={()=>enquire()}>Let&apos;s talk</Pill></div>
             <ul className="kv-hero-benefits"><li><Palette/><span>Art Classes<br/>for All Ages</span></li><li><Users/><span>Workshops<br/>&amp; Events</span></li><li><Flower2/><span>Traditional<br/>&amp; Contemporary Art</span></li></ul>
           </div>
-          <HeroArtLayers/>
+          <HeroArtLayers/><div className="kv-floating-petals" aria-hidden="true">{[0,1,2].map(i=><span key={i}><Image unoptimized src="/images/decoration/lotus-painted-petal-v1.webp" alt="" width={24} height={48}/></span>)}</div>
         </div>
         <div className="kv-hero-bottom kv-shell"><span>TRADITIONAL ROOTS. BOUNDLESS EXPRESSION.</span><a href="#about">SCROLL TO DISCOVER <ArrowDown size={15}/></a></div>
       </section>
@@ -133,10 +136,10 @@ export default function StudioPage({artworks, workshops, settings}: {artworks: A
 
       <section id="workshops" className="kv-workshops kv-shell kv-space"><SceneDecor scene="workshops"/><div className="kv-section-top kv-reveal"><div><Eyebrow>A little time. Something beautiful.</Eyebrow><h2>Workshops &amp; exhibitions.<br/><span className="kv-muted">Art shared together.</span><PaintedStroke flourish/></h2></div><Pill outline onClick={()=>enquire("Upcoming workshops")}>Find your next workshop</Pill></div>
         <WorkshopGallery workshops={workshops}/>
-        <div id="upcoming-classes" className="kv-upcoming kv-reveal"><div><span className="kv-live-dot"/><span className="kv-micro">NEXT AT THE STUDIO</span></div>{workshops.length ? <div className="kv-session-list">{workshops.map(w=><div key={w.id}><h3>{w.title}</h3><p>{w.description}</p>{w.startAt&&<span>{new Intl.DateTimeFormat("en-IN",{dateStyle:"medium",timeZone:w.timezone||"Asia/Kolkata"}).format(new Date(w.startAt))}{w.location?` · ${w.location}`:""}</span>}{w.registrationOpen?<Pill href={wa(w.whatsappMessage||`Hello! I would like to register for the workshop '${w.title}'.`)} external>Register via WhatsApp</Pill>:<span className="kv-tag">Registration closed</span>}</div>)}</div>:<><div><h3>Your next creative adventure is on its way.</h3><p>New batches and workshops are announced on WhatsApp and Instagram.</p></div><button className="kv-text-link" onClick={()=>enquire("The next class or workshop batch")}>Ask about the next batch <ArrowUpRight size={18}/></button></>}</div>
+        {workshops.length > 0 && <div className="kv-session-list">{workshops.map(w=><div key={w.id}><h3>{w.title}</h3><p>{w.description}</p>{w.startAt&&<span>{new Intl.DateTimeFormat("en-IN",{dateStyle:"medium",timeZone:w.timezone||"Asia/Kolkata"}).format(new Date(w.startAt))}{w.location?` · ${w.location}`:""}</span>}{w.registrationOpen?<Pill href={wa(w.whatsappMessage||`Hello! I would like to register for the workshop '${w.title}'.`)} external>Register via WhatsApp</Pill>:<span className="kv-tag">Registration closed</span>}</div>)}</div>}
       </section>
 
-      <section id="recognition" className="kv-recognition kv-shell kv-space"><SceneDecor scene="recognition"/><div className="kv-section-top kv-reveal"><div><Eyebrow>Milestones along the way</Eyebrow><h2>Craft, community<br/><span className="kv-muted">& a little recognition.</span><PaintedStroke flourish/></h2></div><p>Celebrating dedication to art,<br/>teaching, and creative community.</p></div><div className="kv-award-grid">{RECOGNITION.filter(r=>r.image).map(r=><button className="kv-award kv-reveal" key={r.id} onClick={()=>setLightbox({image:r.image!,alt:r.alt,title:r.caption,description:r.organization})}><span className="kv-award-image"><Image unoptimized src={r.image!} alt={r.alt} fill sizes="160px"/></span><span><small className="kv-micro">{r.period}</small><strong>{r.caption}</strong><span>{r.organization}</span></span><ArrowUpRight size={22}/></button>)}</div></section>
+      <section id="recognition" className="kv-recognition kv-shell kv-space"><SceneDecor scene="recognition"/><div className="kv-section-top kv-reveal"><div><Eyebrow>Milestones along the way</Eyebrow><h2>Art, community<br/><span className="kv-muted">&amp; meaningful milestones.</span><PaintedStroke flourish/></h2></div><p>Celebrating a journey of art,<br/>teaching and shared creativity.</p></div><div className="kv-award-grid">{RECOGNITION.filter(r=>r.image).map(r=><button className="kv-award kv-reveal" key={r.id} onClick={()=>setLightbox({image:r.image!,alt:r.alt,title:r.caption,description:r.organization})}><span className="kv-award-image"><Image unoptimized src={r.image!} alt={r.alt} fill sizes="160px"/></span><span><small className="kv-micro">{r.period}</small><strong>{r.caption}</strong><span>{r.organization}</span></span><ArrowUpRight size={22}/></button>)}</div></section>
     </main>
 
     <footer id="contact" className="kv-footer"><SceneDecor scene="footer"/><LivingArtwork variant="footer"/><div className="kv-shell"><div className="kv-footer-cta kv-reveal"><div><Eyebrow light>Your imagination is a good place to start.</Eyebrow><h2>Let&apos;s make<br/>something <span>beautiful.</span><PaintedStroke flourish/></h2></div><Pill light onClick={()=>enquire()}>Start your creative journey</Pill></div><div className="kv-footer-grid"><div><a className="kv-footer-brand" href="#home">kalavridhi<span>ARTS</span></a><p>{settings.tagline}.<br/>Art classes, original artworks, and creative<br/>experiences with {settings.founderName}.</p></div><div><span className="kv-micro">EXPLORE</span>{navigation.map(([label,id])=><a href={`#${id}`} key={id}>{label}<ArrowUpRight size={13}/></a>)}</div><div><span className="kv-micro">LET&apos;S CONNECT</span><a href={wa("Hello, I would like to know more about Kalavridhi Arts.")} target="_blank" rel="noopener noreferrer">WhatsApp <ArrowUpRight size={14}/></a><a href={settings.instagram} target="_blank" rel="noopener noreferrer">Instagram <ArrowUpRight size={14}/></a>{settings.contactEmail&&<a href={`mailto:${settings.contactEmail}`}>Email <ArrowUpRight size={14}/></a>}<button onClick={()=>enquire()}>Enquire about a class <ArrowUpRight size={14}/></button></div></div><div className="kv-legal"><span>© {new Date().getFullYear()} {settings.siteName}. All rights reserved.</span><span>MADE OF COLOUR. MADE WITH HEART.</span><a href="#home" onClick={()=>requestAnimationFrame(()=>document.getElementById("kv-hero-title")?.focus({preventScroll:true}))}>Back to top <ArrowUpRight size={14}/></a></div><div className="kv-footer-watermark" aria-hidden="true">KALAVRIDHI</div></div></footer>
@@ -148,4 +151,3 @@ export default function StudioPage({artworks, workshops, settings}: {artworks: A
     <AnimatePresence>{lightbox&&<Modal key="artwork-detail" title={lightbox.title} close={closeLightbox} wide><motion.div layoutId={lightbox.layoutId} className="kv-lightbox-image" transition={{layout:{duration:.42,ease:[.22,1,.36,1]}}}><Image unoptimized src={lightbox.image} alt={lightbox.alt} fill sizes="90vw"/></motion.div><div className="kv-lightbox-caption"><div><h3>{lightbox.title}</h3>{lightbox.description&&<p>{lightbox.description}</p>}</div><a className="kv-text-link" href={wa(`Hello Nishkala, I saw your artwork '${lightbox.title}' on Kalavridhi Arts and would like to enquire.`)} target="_blank" rel="noopener noreferrer">Enquire <ArrowUpRight size={18}/></a></div></Modal>}</AnimatePresence>
   </div></LayoutGroup></MotionConfig>;
 }
-
