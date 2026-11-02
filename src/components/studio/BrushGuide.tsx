@@ -28,9 +28,8 @@ function BrushRenderer() {
     let dispose = () => {};
 
     void (async () => {
-      const [THREE, { gsap }, { ScrollTrigger }] = await Promise.all([import("three"), import("gsap"), import("gsap/ScrollTrigger")]);
+      const [THREE, { gsap }] = await Promise.all([import("three"), import("gsap")]);
       if (disposed || !element.isConnected) return;
-      gsap.registerPlugin(ScrollTrigger);
       let renderer: InstanceType<typeof THREE.WebGLRenderer>;
       try { renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true, powerPreference: "low-power" }); }
       catch { return; }
@@ -93,36 +92,98 @@ function BrushRenderer() {
       brush.add(strands, dipped); brush.rotation.set(.1, -.26, -.31);
 
       // Render only during movement; no permanent animation loop.
-      const render = () => { if (!document.hidden) renderer.render(scene, camera); };
+      let lost = false;
+      const content = document.getElementById("kv-content");
+      const render = () => { if (!document.hidden && !lost && !content?.hasAttribute("inert")) renderer.render(scene, camera); };
       let frame = 0;
+      let previousStop = "", previousX = -Infinity, previousY = -Infinity;
+      const painted = new Set<string>();
+      let pendingPaint: ReturnType<typeof gsap.delayedCall> | undefined;
+      let painting: ReturnType<typeof gsap.to> | undefined;
+      let paintedPath: SVGPathElement | undefined;
+      const finishStroke = () => {
+        pendingPaint?.kill(); pendingPaint = undefined;
+        painting?.kill(); painting = undefined;
+        if (paintedPath) { paintedPath.style.removeProperty("stroke-dasharray"); paintedPath.style.removeProperty("stroke-dashoffset"); paintedPath = undefined; }
+        element.dataset.action = "resting";
+      };
+      const queueStroke = (section: HTMLElement) => {
+        pendingPaint?.kill();
+        if (painted.has(section.id)) return;
+        pendingPaint = gsap.delayedCall(.3, () => {
+          if (document.hidden || content?.hasAttribute("inert") || element.dataset.stop !== section.id) return;
+          const path = section.querySelector<SVGPathElement>(".kv-painted-stroke path");
+          const matrix = path?.getScreenCTM(), rect = path?.getBoundingClientRect();
+          if (!path || !matrix || !rect || rect.top < 110 || rect.bottom > innerHeight - 50) return;
+          painted.add(section.id); paintedPath = path;
+          element.dataset.action = "painting";
+          gsap.killTweensOf(element); gsap.killTweensOf(brush.rotation);
+          gsap.set(element, { opacity: 1 });
+          brush.rotation.set(.1, -.3, -.55); brush.updateMatrixWorld(true);
+          const tip = new THREE.Vector3(0, -1.87, 0).applyMatrix4(brush.matrixWorld).project(camera);
+          const offsetX = tip.x * 110, offsetY = -tip.y * 110;
+          const length = path.getTotalLength(), state = { progress: 0 };
+          path.style.strokeDasharray = `${length}`; path.style.strokeDashoffset = `${length}`;
+          painting = gsap.to(state, { progress: 1, duration: section.id === "contact" ? 1 : .8, ease: "sine.inOut", onUpdate: () => {
+            const point = path.getPointAtLength(state.progress * length);
+            const screenX = point.x * matrix.a + point.y * matrix.c + matrix.e;
+            const screenY = point.x * matrix.b + point.y * matrix.d + matrix.f;
+            gsap.set(element, { x: screenX - offsetX - (innerWidth - 118), y: screenY - offsetY - (innerHeight * .3 + 110) });
+            path.style.strokeDashoffset = `${length * (1 - state.progress)}`;
+            render();
+          }, onComplete: () => { finishStroke(); previousX = -Infinity; schedule(); } });
+        });
+      };
       const move = () => {
         frame = 0;
         if (document.hidden || !element.isConnected) return;
+        if (painting) finishStroke();
         const sections = stops.map(id => document.getElementById(id)).filter((node): node is HTMLElement => !!node);
         const active = sections.find(node => { const r = node.getBoundingClientRect(); return r.top <= innerHeight * .55 && r.bottom > innerHeight * .55; })
           ?? sections.find(node => {const r=node.getBoundingClientRect();return r.bottom>0 && r.top<innerHeight;});
         if (!active) return;
-        const heading = active.querySelector('h1,h2') ?? active;
-        const rect = heading.getBoundingClientRect();
-        const targetY = Math.max(innerHeight * .25, Math.min(innerHeight * .7, rect.top + rect.height * .5));
-        const y = Math.max(-90, Math.min(120, targetY - (innerHeight * .3 + 110)));
-        const targetX = Math.min(innerWidth * .65, rect.left + rect.width * .5);
-        const angle = Math.atan2(targetX - (innerWidth - 126), targetY - (innerHeight * .3 + 110 + y));
+        queueStroke(active);
+        const selector = active.id === "about" ? ".kv-portrait" : active.id === "gallery" ? ".kv-art-stage" : "h1,h2";
+        const target = active.querySelector(selector) ?? active;
+        const rect = target.getBoundingClientRect();
+        const isGap = active.id === "about" || active.id === "gallery";
+        const targetY = Math.max(110, Math.min(innerHeight * .72, rect.top + Math.min(rect.height * .5, 110)));
+        const clippedGap = isGap && rect.top < 220;
+        const centerX = isGap && !clippedGap ? Math.min(innerWidth - 122, rect.right + (active.id === "gallery" ? 32 : 70)) : innerWidth - 122;
+        const footerButton = active.id === "contact" ? active.querySelector(".kv-footer-cta .kv-pill")?.getBoundingClientRect() : undefined;
+        const dockY = isGap ? clippedGap ? rect.bottom + 80 : rect.top - 45 : footerButton ? footerButton.top - 80 : targetY - 15;
+        const centerY = Math.max(145, Math.min(innerHeight - 145, dockY));
+        const x = centerX - (innerWidth - 118);
+        const y = centerY - (innerHeight * .3 + 110);
+        const targetX = isGap ? rect.right - 30 : Math.min(rect.right - 20, centerX - 100);
+        const angle = Math.max(-2.6, Math.min(-.25, Math.atan2(targetX - centerX, targetY - centerY)));
+        const changed = previousStop !== active.id;
+        if (!changed && Math.abs(x - previousX) < 6 && Math.abs(y - previousY) < 6) return;
+        previousStop = active.id; previousX = x; previousY = y;
         element.dataset.stop = active.id;
-        gsap.to(element, { y, duration: .9, ease: 'power2.out', overwrite: true, onUpdate: render });
-        gsap.to(brush.rotation, { z: Math.max(-2.1, Math.min(-.45, angle)), y: -.24, duration: 1.05, ease: 'power2.out', overwrite: true, onUpdate: render });
+        inked.color.set(active.id === "recognition" ? 0xd8b060 : 0xe38aab);
+        gsap.to(element, { x, y, opacity: clippedGap && rect.bottom + 90 > innerHeight - 90 ? 0 : 1, duration: changed ? .95 : .5, ease: 'power2.out', overwrite: true, onUpdate: render });
+        gsap.to(brush.rotation, { z: angle, x: active.id === "gallery" ? -.12 : .1, y: active.id === "contact" ? .18 : -.3, duration: changed ? 1 : .6, ease: 'power2.out', overwrite: true, onUpdate: render });
       };
       const schedule = () => { if (!frame) frame = requestAnimationFrame(move); };
-      const visibility = () => { if (document.hidden) { if(frame)cancelAnimationFrame(frame);frame=0;gsap.killTweensOf(element);gsap.killTweensOf(brush.rotation); } else schedule(); };
+      const visibility = () => { if (document.hidden) { finishStroke(); if(frame)cancelAnimationFrame(frame);frame=0;gsap.killTweensOf(element);gsap.killTweensOf(brush.rotation); } else schedule(); };
       window.addEventListener('scroll', schedule, {passive:true});
       window.addEventListener('resize', schedule);
+      window.addEventListener('kv:scene-change', schedule);
       document.addEventListener('visibilitychange', visibility);
-      const triggers = stops.map(id => ScrollTrigger.create({trigger: '#' + id, start:'top 66%', end:'bottom 34%', onEnter:schedule, onEnterBack:schedule}));
+      const contextLost = (event: Event) => { event.preventDefault(); lost = true; finishStroke(); gsap.killTweensOf(element); gsap.killTweensOf(brush.rotation); };
+      const contextRestored = () => { lost = false; previousX = -Infinity; schedule(); };
+      renderer.domElement.addEventListener("webglcontextlost", contextLost);
+      renderer.domElement.addEventListener("webglcontextrestored", contextRestored);
+      const modalObserver = new MutationObserver(() => { finishStroke(); if (!content?.hasAttribute("inert")) { previousX = -Infinity; schedule(); } });
+      if (content) modalObserver.observe(content, { attributes: true, attributeFilter: ["inert"] });
       schedule();
       dispose = () => {
-        triggers.forEach(trigger => trigger.kill()); gsap.killTweensOf(element); gsap.killTweensOf(brush.rotation);
+        finishStroke(); modalObserver.disconnect(); gsap.killTweensOf(element); gsap.killTweensOf(brush.rotation);
         cancelAnimationFrame(frame);
         window.removeEventListener("scroll", schedule); window.removeEventListener("resize", schedule); document.removeEventListener("visibilitychange", visibility);
+        window.removeEventListener("kv:scene-change", schedule);
+        renderer.domElement.removeEventListener("webglcontextlost", contextLost); renderer.domElement.removeEventListener("webglcontextrestored", contextRestored);
         brush.traverse(object => { if (object instanceof THREE.Mesh) object.geometry.dispose(); });
         [handle, ferrule, ridge, natural, inked].forEach(material => material.dispose());
         grainTexture.dispose(); renderer.dispose(); renderer.domElement.remove();

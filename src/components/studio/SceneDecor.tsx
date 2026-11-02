@@ -43,6 +43,7 @@ export default function SceneDecor({ scene }: { scene: "hero" | "about" | "galle
   return <div className={`kv-scene-decor kv-scene-${scene}`} aria-hidden="true">
     <div className="kv-paper-wash kv-paper-wash-pink"/>
     <div className="kv-paper-wash kv-paper-wash-blue"/>
+    {scene !== "hero" && <div className="kv-boundary-pigment"><DecorativeAsset name="watercolor-wash-v2"/></div>}
     <Mandala />
     <DecorativeAsset name="watercolor-wash-v2" className="kv-textured-wash kv-textured-wash-one"/>
     <DecorativeAsset name="watercolor-wash-v2" className="kv-textured-wash kv-textured-wash-two"/>
