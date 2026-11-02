@@ -21,6 +21,7 @@ export default function useSectionMotion(ref: RefObject<HTMLDivElement | null>) 
       };
       let frame = 0;
       let active = "";
+      const arrivals = new Map<string,number>();
       const selectScene = () => {
         frame = 0;
         if (document.hidden) return;
@@ -32,6 +33,12 @@ export default function useSectionMotion(ref: RefObject<HTMLDivElement | null>) 
         root.dataset.scene = active;
         window.dispatchEvent(new CustomEvent("kv:scene-change", { detail: active }));
         if (media.matches) return;
+        const heading=section.querySelector("h2");
+        const now=performance.now();
+        if(heading&&now-(arrivals.get(active)??-3000)>1500){
+          play(heading,{opacity:[.75,1],y:[12,0]},{duration:.45,ease:[.22,1,.36,1]});
+          arrivals.set(active,now);
+        }
         const pigment = section.querySelector<HTMLElement>(".kv-boundary-pigment");
         if (pigment) play(pigment, { opacity: [0, .13, .055], scale: [.96, 1.035, 1] }, { duration: 1.15, ease: "easeOut" });
       };
@@ -46,9 +53,6 @@ export default function useSectionMotion(ref: RefObject<HTMLDivElement | null>) 
         const path = node.querySelector("path");
         if (path) play(path, { pathLength: [0, 1], opacity: [.2, .8] }, { duration: .8, delay: .22, ease: [.22, 1, .36, 1] });
       }, { margin: "0px 0px -8% 0px" });
-      const stopHeadings = media.matches ? () => {} : inView(root.querySelectorAll(".kv-section-top h2,.kv-about-copy h2"), node => {
-        play(node,{opacity:[.65,1],y:[10,0]},{duration:.55,ease:[.22,1,.36,1]});
-      },{margin:"0px 0px -5% 0px"});
       const gallery = root.querySelector(".kv-scene-gallery");
       const stopBloom = !gallery || media.matches ? () => {} : inView(gallery, () => {
         const lotus = gallery.querySelector(".kv-botanical-one");
@@ -64,7 +68,7 @@ export default function useSectionMotion(ref: RefObject<HTMLDivElement | null>) 
       document.addEventListener("visibilitychange", schedule);
       schedule();
       disposeMotion = () => {
-        cancelAnimationFrame(frame); stopReveal(); stopAccent(); stopBloom(); stopHeadings();
+        cancelAnimationFrame(frame); stopReveal(); stopAccent(); stopBloom();
         window.removeEventListener("scroll", schedule); window.removeEventListener("resize", schedule);
         document.removeEventListener("visibilitychange", schedule);
         animations.forEach(control => control.complete()); animations.clear();

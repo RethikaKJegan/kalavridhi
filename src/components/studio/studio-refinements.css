@@ -51,3 +51,33 @@
 @media(max-width:959px){.kv-floating-petals{display:none}}
 @media(max-width:767px){.kv-approved .kv-recognition h2{font-size:46px;max-width:100%}.kv-approved .kv-scene-decor{inset-inline:0}.kv-approved .kv-recognition .kv-section-top>p{max-width:100%}}
 @media(prefers-reduced-motion:reduce){.kv-floating-petals,.kv-ink-pointer{display:none}.kv-approved .kv-footer-cta .kv-pill:after{transition:none}}
+
+.kv-approved .kv-hero h1 {font-size:clamp(50px,min(6.1vw,10.2svh),102px);line-height:.98}
+.kv-approved .kv-hero h1 .kv-hero-teacher {display:block;font-family:'DM Sans',sans-serif;font-size:clamp(18px,1.6vw,25px);font-weight:500;letter-spacing:-.02em;line-height:1.5;margin-top:24px;color:#243c59}
+.kv-approved .kv-hero-description {max-width:470px!important;font-size:clamp(15px,1.15vw,18px)!important;line-height:1.7!important}
+.kv-approved .kv-hero-bottom {justify-content:flex-end;pointer-events:none}
+.kv-approved .kv-hero-bottom a {pointer-events:auto}
+.kv-approved .kv-scene-gallery .kv-mandala {width:300px;height:300px;top:40px;right:6%;opacity:.13}
+.kv-approved .kv-scene-gallery .kv-botanical-two {top:35px;width:155px;height:235px;opacity:.5}
+.kv-approved .kv-scene-about .kv-mandala {width:210px;height:210px;top:70px;left:-140px;opacity:.15}
+.kv-approved .kv-about-copy {position:relative;z-index:2}
+.kv-approved .kv-about-links {border-top:0!important}
+.kv-approved>.kv-site-ink,.kv-approved>.kv-site-ink.kv-ink-hero {mask-image:linear-gradient(90deg,#0009, #0006 35%,#0006 65%,#0009);opacity:.62}
+.kv-approved>.kv-site-ink.kv-ink-dark {mask-image:none;opacity:.44}
+.kv-brush-layer {position:fixed;inset:0;overflow:hidden;pointer-events:none;z-index:24}
+.kv-guided-mop {position:absolute;left:0;top:0;width:320px;height:320px;opacity:0;pointer-events:none;filter:drop-shadow(3px 5px 3px #1a233320)}
+.kv-guided-mop canvas,.kv-mop-fallback {position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+.kv-guided-mop[data-renderer=webgl] .kv-mop-fallback {display:none}
+.kv-brush-handle {position:absolute;left:50%;top:50%;width:44px;height:78%;transform:translate(-50%,-50%);pointer-events:auto;touch-action:none;cursor:grab!important;background:transparent!important;border:0!important;padding:0}
+.kv-brush-handle:active {cursor:grabbing!important}
+.kv-brush-handle:focus-visible {outline:2px dashed #a9617f;outline-offset:3px;border-radius:20px}
+.kv-brush-toggle {position:absolute;right:14px;bottom:92px;display:flex;gap:6px;align-items:center;justify-content:center;min-height:44px;padding:6px 11px;border-radius:22px;border:1px solid #b5a79b!important;background:#fffaf3ed!important;color:#344963;font-size:11px;pointer-events:auto}
+.kv-approved:has(.kv-overlay) .kv-brush-layer {visibility:hidden}
+@media(max-width:959px){.kv-guided-mop{width:180px;height:180px}.kv-guided-mop canvas{display:none}.kv-guided-mop .kv-mop-fallback{display:block}.kv-brush-toggle{right:auto;left:12px;bottom:18px;font-size:10px}}
+@media(max-width:767px){.kv-approved .kv-hero h1{font-size:clamp(43px,12vw,65px);line-height:1.03}.kv-approved .kv-hero h1 .kv-hero-teacher{font-size:19px;margin-top:15px}.kv-approved .kv-hero-description{font-size:14px!important;line-height:1.7!important}.kv-approved .kv-hero-actions{gap:10px;flex-wrap:wrap}.kv-approved .kv-hero-actions .kv-pill{font-size:12px!important;padding-left:17px;min-height:50px}.kv-approved .kv-hero-actions .kv-pill>span{width:32px;height:32px}.kv-approved .kv-scene-gallery .kv-mandala{width:180px;height:180px;right:-50px;top:60px;opacity:.12}.kv-approved>.kv-site-ink{opacity:.3}}
+.kv-approved .kv-hero h1>.kv-colour-word {font-size:.78em;line-height:1.15}
+.kv-brush-handle {height:90%}
+@media(max-width:767px){.kv-approved .kv-hero h1>.kv-colour-word{font-size:1em}}
+.kv-approved.kv-studio .kv-hero h1 {font-size:clamp(50px,min(6.1vw,10.2svh),102px);line-height:.98}
+@media(max-width:767px){.kv-approved.kv-studio .kv-hero h1{font-size:clamp(42px,12vw,64px);line-height:1.03}.kv-approved .kv-hero-actions{display:grid!important;grid-template-columns:1.1fr 1fr;gap:8px}.kv-approved .kv-hero-actions .kv-pill{font-size:11px!important;padding-left:12px!important;padding-right:6px;gap:6px;min-height:48px}.kv-approved .kv-hero-actions .kv-pill>span{width:28px;height:28px}.kv-brush-toggle{bottom:calc(18px + env(safe-area-inset-bottom))}}
+@media(min-width:768px) and (max-width:1350px){.kv-approved .kv-hero-description{max-width:360px!important}.kv-approved .kv-layered-hero.kv-reference-hero{width:70%}.kv-approved .kv-hero-actions{gap:10px}.kv-approved .kv-hero-actions .kv-pill{font-size:12px!important;padding-left:20px}}

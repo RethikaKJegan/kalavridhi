@@ -12,7 +12,7 @@ import SceneDecor from "./SceneDecor";
 import HeroArtLayers from "./HeroArtLayers";
 import LivingArtwork from "./LivingArtwork";
 import BrushGuide from "./BrushGuide";
-import InkPointer from "./InkPointer";
+
 import InkCanvas from "./InkCanvas";
 import ArtworkCarousel from "./ArtworkCarousel";
 import WorkshopGallery from "./WorkshopGallery";
@@ -96,7 +96,7 @@ export default function StudioPage({artworks, workshops, settings}: {artworks: A
   };
 
   return <MotionConfig reducedMotion="user"><LayoutGroup id={layoutId}><div ref={studioRef} className="kv-studio kv-approved">
-    <InkCanvas/><InkPointer/><BrushGuide/>
+    <InkCanvas/><BrushGuide/>
     <div id="kv-content">
     <a className="kv-skip" href="#main">Skip to content</a>
     <header className="kv-header">
@@ -110,15 +110,15 @@ export default function StudioPage({artworks, workshops, settings}: {artworks: A
         <SceneDecor scene="hero"/>
         <div className="kv-hero-wash" aria-hidden="true"/>
         <div className="kv-hero-content kv-shell">
-          <div className="kv-hero-copy"><Eyebrow>A space to learn. A world to create.</Eyebrow>
-            <h1 id="kv-hero-title" tabIndex={-1}>{settings.heroHeading.toLowerCase()==="where creativity blooms." ? <><span>Where </span><span>creativity </span><span className="kv-colour-word">blooms.<PaintedStroke/></span></> : <span>{settings.heroHeading}</span>}</h1>
-            <p className="kv-hero-description">{settings.heroSubheading}</p>
-            <div className="kv-hero-actions"><Pill href="#gallery">Explore the artwork</Pill><Pill outline onClick={()=>enquire()}>Let&apos;s talk</Pill></div>
+          <div className="kv-hero-copy"><Eyebrow>Art classes · workshops · original art</Eyebrow>
+            <h1 id="kv-hero-title" tabIndex={-1}>{settings.heroHeading.toLowerCase()==="where creativity blooms." ? <><span>Art classes</span><span className="kv-colour-word">&amp; workshops<PaintedStroke/></span><span className="kv-hero-teacher">with {settings.founderName}</span></> : <span>{settings.heroHeading}</span>}</h1>
+            <p className="kv-hero-description">{settings.heroHeading.toLowerCase()==="where creativity blooms." ? "Learn traditional and contemporary art through guided classes and creative workshops for children and adults. Explore original artworks by Nishkala Krishna." : settings.heroSubheading}</p>
+            <div className="kv-hero-actions"><Pill onClick={()=>enquire("Art classes")}>Enquire about classes</Pill><Pill outline href="#gallery">Explore artworks</Pill></div>
             <ul className="kv-hero-benefits"><li><Palette/><span>Art Classes<br/>for All Ages</span></li><li><Users/><span>Workshops<br/>&amp; Events</span></li><li><Flower2/><span>Traditional<br/>&amp; Contemporary Art</span></li></ul>
           </div>
           <HeroArtLayers/><div className="kv-floating-petals" aria-hidden="true">{[0,1,2].map(i=><span key={i}><Image unoptimized src="/images/decoration/lotus-painted-petal-v1.webp" alt="" width={24} height={48}/></span>)}</div>
         </div>
-        <div className="kv-hero-bottom kv-shell"><span>TRADITIONAL ROOTS. BOUNDLESS EXPRESSION.</span><a href="#about">SCROLL TO DISCOVER <ArrowDown size={15}/></a></div>
+        <div className="kv-hero-bottom kv-shell"><a href="#about">SCROLL TO DISCOVER <ArrowDown size={15}/></a></div>
       </section>
 
       <section id="about" className="kv-about kv-shell kv-space">

@@ -76,9 +76,9 @@ export default function InkCanvas() {
       if(event.clientY<r.top || event.clientY>r.bottom || event.clientX<r.left || event.clientX>r.right) return;
       last = point[0]<0 ? [(event.clientX-r.left)/r.width,1-(event.clientY-r.top)/r.height] : point;
       if (event.pointerType === "touch") return;
-      point = [(event.clientX-r.left)/r.width,1-(event.clientY-r.top)/r.height]; movement = .6;
+      point = [(event.clientX-r.left)/r.width,1-(event.clientY-r.top)/r.height]; movement = 1.0;
     };
-    const splat = (event: PointerEvent) => { if(event.pointerType === "touch")return; const r=canvas.getBoundingClientRect(); if(event.clientX>=r.left&&event.clientX<=r.right&&event.clientY>=r.top&&event.clientY<=r.bottom){move(event);movement=.8;} };
+    const splat = (event: PointerEvent) => { if(event.pointerType === "touch")return; const r=canvas.getBoundingClientRect(); if(event.clientX>=r.left&&event.clientX<=r.right&&event.clientY>=r.top&&event.clientY<=r.bottom){move(event);movement=1.8;} };
     const draw = (p: WebGLProgram, texture: WebGLTexture, target: WebGLFramebuffer|null) => {
       gl.useProgram(p); gl.bindFramebuffer(gl.FRAMEBUFFER,target); gl.viewport(0,0,width,height);
       gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D,texture); gl.uniform1i(gl.getUniformLocation(p,"dye"),0);
@@ -100,7 +100,7 @@ export default function InkCanvas() {
       gl.uniform1f(gl.getUniformLocation(sim,"time"),time); gl.uniform1f(gl.getUniformLocation(sim,"aspect"),width/height);
       gl.uniform1f(gl.getUniformLocation(sim,"active"),movement>.02 ? movement : hero ? .14 : .10);
       gl.uniform1f(gl.getUniformLocation(sim,"seed"),time*.24); gl.drawArrays(gl.TRIANGLES,0,6);
-      draw(out,targets[1].texture,null); gl.uniform1f(gl.getUniformLocation(out,"strength"),hero ? .35 : .28); gl.drawArrays(gl.TRIANGLES,0,6); targets.reverse(); movement*=.82; last=point;
+      draw(out,targets[1].texture,null); gl.uniform1f(gl.getUniformLocation(out,"strength"),hero ? .55 : .46); gl.drawArrays(gl.TRIANGLES,0,6); targets.reverse(); movement*=.82; last=point;
     };
     const contextLost = (e: Event) => { e.preventDefault(); lost=true; if(frame)cancelAnimationFrame(frame);frame=0; };
     const visibilityChange = () => { if(document.hidden || content?.hasAttribute("inert")){if(frame)cancelAnimationFrame(frame);frame=0;}else if(!lost&&!frame)frame=requestAnimationFrame(tick); };
