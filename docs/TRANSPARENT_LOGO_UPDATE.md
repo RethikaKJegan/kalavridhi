@@ -1,0 +1,11 @@
+# Transparent header logo — local update
+
+Removed the opaque cream-background wordmark from the header. The new alpha-transparent logo is stored at `public/images/logo/kalavridhi-transparent-v2.webp` (1600×545, lossless WebP, 220794 bytes; alpha range 0–255). Its aspect ratio is preserved with width 100% and automatic height. Latest container width is 260px desktop, 240px small desktop, 195px mobile and 180px narrow mobile. The tagline is real DM Sans text centred beneath the logo, at 14/13/10.5/9.5px respectively, weight 600. Header left padding is 16–28px. No duplicate square logo or blend-mode workaround. This update is being synchronized to GitHub at the user's request on 2 November; no Cloudflare deployment.
+
+Built-in ImageGen was used as explicitly requested, editing the supplied script-logo reference. This is a generated high-resolution restoration, not an original vector logo or a guarantee of pixel-identical letter contours. The original source remains unchanged.
+
+Generated original: `C:/Users/JKRFamily/.codex/generated_images/01a1906e-1d9e-7103-b3c3-d82c7a457e60/exec-6fdc9094-8c1e-45df-b705-b33c598bcdcc.png`.
+
+Final prompt (`transparent_background: true`):
+
+> Edit this supplied brand logo into a clean high resolution transparent production asset. Preserve the exact dark navy brush/butterfly/palette emblem at left, its four yellow blue pink palette dots, and the exact navy handwritten script word 'Kalavridhi' including the sweeping capital K formed by the emblem. Preserve original letter shapes, natural proportions and stroke weight, no stretching or redesign. Remove ALL ivory/white paper background and corner ornaments to genuine alpha transparency, including gaps inside letters/emblem. REMOVE the small 'ARTS & CREATIVE EXPERIENCES' tagline entirely; it will be rendered as real web text separately. Output ONLY the emblem and handwritten Kalavridhi wordmark as one crisp clean logo with tight transparent margins, wide horizontal ratio around 3.8:1. Smooth sharp edges, solid deep ink navy #071e3a, bright original palette dots. No glow, no shadow, no rectangular paper, no additional text, no new emblems. This is background removal and faithful resolution restoration, not a new logo concept.

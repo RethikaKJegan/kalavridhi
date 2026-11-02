@@ -91,7 +91,7 @@ export default function StudioPage({artworks, workshops, settings}: {artworks: A
     <div id="kv-content">
     <a className="kv-skip" href="#main">Skip to content</a>
     <header className="kv-header">
-      <a href="#home" className="kv-brand kv-brand-pair" aria-label={`${settings.siteName} home`}><Image unoptimized className="kv-brand-square" src="/images/logo/kalavridhi-square.webp" width={72} height={72} alt=""/><Image unoptimized className="kv-brand-wordmark" src="/images/logo/kalavridhi-script-wordmark.webp" width={330} height={115} alt="Kalavridhi — Arts & Creative Experiences"/></a>
+      <a href="#home" className="kv-brand kv-brand-single" aria-label={`${settings.siteName} home`}><Image unoptimized className="kv-brand-wordmark" src="/images/logo/kalavridhi-transparent-v2.webp" width={1600} height={545} alt="Kalavridhi"/><span className="kv-brand-tagline">ARTS &amp; CREATIVE EXPERIENCES</span></a>
       <nav aria-label="Main navigation">{navigation.map(([label,id])=><a key={id} href={`#${id}`}>{label}</a>)}</nav>
       <div className="kv-header-right"><span className="kv-clock">INDIA <span>{clock||"—:—"}</span></span><button className="kv-menu-button" onClick={()=>setOverlay("menu")} aria-label="Open navigation menu" aria-expanded={overlay==="menu"}>Menu<Menu size={17}/></button></div>
     </header>
