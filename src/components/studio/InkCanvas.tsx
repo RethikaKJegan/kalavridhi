@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useSyncExternalStore } from "react";
 
 // Dye history is advected through an evolving curl field in two GPU buffers.
 const vertex = `attribute vec2 a; varying vec2 uv; void main(){uv=a*.5+.5;gl_Position=vec4(a,0.,1.);}`;
@@ -31,6 +31,14 @@ c*=mix(1.,.60,focus);
 gl_FragColor=vec4(c,smoothstep(.018,.52,density)*mix(strength,.95,focus));}`;
 
 export default function InkCanvas() {
+  const desktop=useSyncExternalStore(subscribeDesktop,readDesktop,()=>false);
+  return desktop ? <DesktopInkCanvas/> : null;
+}
+const desktopQuery="(min-width:960px) and (pointer:fine)";
+const readDesktop=()=>matchMedia(desktopQuery).matches;
+const subscribeDesktop=(notify:()=>void)=>{const media=matchMedia(desktopQuery);media.addEventListener("change",notify);return()=>media.removeEventListener("change",notify);};
+
+function DesktopInkCanvas() {
   const ref = useRef<HTMLCanvasElement>(null);
   useEffect(() => {
     const canvas = ref.current;

@@ -1,10 +1,16 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useSyncExternalStore } from "react";
+import MopArtwork from "./MopArtwork";
+import MobileBrush from "./MobileBrush";
 
+const mobileQuery="(max-width:959px), (pointer:coarse)";
+const readMobile=()=>matchMedia(mobileQuery).matches;
+const subscribeMobile=(notify:()=>void)=>{const media=matchMedia(mobileQuery);media.addEventListener("change",notify);return()=>media.removeEventListener("change",notify);};
 const stops=["home","about","gallery","workshops","recognition","contact"];
 export default function BrushGuide(){
-  return <div className="kv-brush-layer"><GuidedBrush/></div>;
+  const mobile=useSyncExternalStore(subscribeMobile,readMobile,()=>true);
+  return <div className="kv-brush-layer">{mobile?<MobileBrush/>:<GuidedBrush/>}</div>;
 }
 function GuidedBrush(){
   const host=useRef<HTMLDivElement>(null),grip=useRef<HTMLButtonElement>(null);
@@ -84,5 +90,5 @@ function GuidedBrush(){
     });
     return()=>{disposed=true;cleanup();};
   },[]);
-  return <div ref={host} className="kv-guided-mop"><svg className="kv-mop-fallback" viewBox="0 0 120 400" aria-hidden="true"><defs><linearGradient id="mop-wood"><stop stopColor="#d6bb7d"/><stop offset=".4" stopColor="#fff0bd"/><stop offset="1" stopColor="#bea367"/></linearGradient><linearGradient id="mop-metal"><stop stopColor="#52616b"/><stop offset=".35" stopColor="#e4e8df"/><stop offset=".7" stopColor="#68757a"/><stop offset="1" stopColor="#bec5c3"/></linearGradient><linearGradient id="mop-hair"><stop stopColor="#172031"/><stop offset=".55" stopColor="#0c1525"/><stop offset="1" stopColor="#283147"/></linearGradient></defs><path d="M55 18Q60 9 65 18L70 254H50Z" fill="url(#mop-wood)"/><path d="M48 251H72L76 287H44Z" fill="url(#mop-metal)"/><path d="M44 284C12 318 28 350 60 391C92 350 108 318 76 284Z" fill="url(#mop-hair)"/><g stroke="#8e929d" strokeWidth=".6" opacity=".55">{Array.from({length:12},(_,i)=><path key={i} d={`M${46+i*2.5} 289Q${17+i*7} 336 60 388`}/>)}</g><path d="M48 257H72M46 277H74" stroke="#f0eee2" strokeWidth="2"/></svg><button ref={grip} className="kv-brush-handle" aria-label="Move paintbrush. Drag or use arrow keys; Escape restores automatic movement." title="Drag to move · Escape to reset"/></div>;
+  return <div ref={host} className="kv-guided-mop"><MopArtwork/><button ref={grip} className="kv-brush-handle" aria-label="Move paintbrush. Drag or use arrow keys; Escape restores automatic movement." title="Drag to move · Escape to reset"/></div>;
 }
