@@ -55,7 +55,7 @@ function Modal({ children, title, close, wide = false }: { children: ReactNode; 
 
 export default function StudioPage({artworks, workshops, settings}: {artworks: Artwork[];workshops: Workshop[];settings: SiteSettings}) {
   const studioRef = useRef<HTMLDivElement>(null);
-  // Phase 2 is a static visual checkpoint. Existing motion source is retained for later.
+  const heroRef = useRef<HTMLElement>(null);
   const [overlay,setOverlay]=useState<"menu"|"enquiry"|null>(null);
   const [lightbox,setLightbox]=useState<{image:string;alt:string;title:string;description?:string}|null>(null);
   const [filter,setFilter]=useState("All");
@@ -97,7 +97,7 @@ export default function StudioPage({artworks, workshops, settings}: {artworks: A
     </header>
 
     <main id="main" tabIndex={-1}>
-      <section id="home" className="kv-hero" aria-labelledby="kv-hero-title">
+      <section ref={heroRef} id="home" className="kv-hero" aria-labelledby="kv-hero-title">
         <SceneDecor scene="hero"/>
         <div className="kv-hero-wash" aria-hidden="true"/>
         <div className="kv-hero-content kv-shell">
@@ -107,7 +107,7 @@ export default function StudioPage({artworks, workshops, settings}: {artworks: A
             <div className="kv-hero-actions"><Pill href="#gallery">Explore the artwork</Pill><Pill outline onClick={()=>enquire()}>Let&apos;s talk</Pill></div>
             <ul className="kv-hero-benefits"><li><Palette/><span>Art Classes<br/>for All Ages</span></li><li><Users/><span>Workshops<br/>&amp; Events</span></li><li><Flower2/><span>Traditional<br/>&amp; Contemporary Art</span></li></ul>
           </div>
-          <HeroArtLayers/>
+          <HeroArtLayers heroRef={heroRef}/>
         </div>
         <div className="kv-hero-bottom kv-shell"><span>TRADITIONAL ROOTS. BOUNDLESS EXPRESSION.</span><a href="#about">SCROLL TO DISCOVER <ArrowDown size={15}/></a></div>
       </section>

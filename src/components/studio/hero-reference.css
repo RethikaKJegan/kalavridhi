@@ -3,6 +3,18 @@
   width:75%; right:-12%; top:85px; bottom:-20px; opacity:1;
 }
 .kv-reference-hero .kv-reference-collage { inset:0; }
+.kv-depth-hero { pointer-events:none; }
+.kv-depth-canvas { position:absolute; inset:0; width:100%; height:100%; overflow:visible; opacity:0; }
+.kv-depth-hero[data-depth-active="true"] .kv-depth-canvas { opacity:1; }
+.kv-depth-hero[data-depth-active="true"] .kv-depth-fallback { visibility:hidden; }
+@media (prefers-reduced-motion:no-preference) {
+  .kv-approved .kv-hero-copy > * { animation:kv-hero-copy-enter .65s cubic-bezier(.22,1,.36,1) both; }
+  .kv-approved .kv-hero-copy > :nth-child(2) { animation-delay:.06s; }
+  .kv-approved .kv-hero-copy > :nth-child(3) { animation-delay:.12s; }
+  .kv-approved .kv-hero-copy > :nth-child(4) { animation-delay:.18s; }
+  .kv-approved .kv-hero-copy > :nth-child(5) { animation-delay:.24s; }
+}
+@keyframes kv-hero-copy-enter { from { opacity:.8; transform:translateY(10px); } to { opacity:1; transform:none; } }
 .kv-approved .kv-reference-hero .kv-reference-collage img {
   object-fit:cover!important; object-position:center bottom;
 }
