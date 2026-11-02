@@ -23,10 +23,12 @@ void main(){
  ink+=colour*splat*.34;
  gl_FragColor=vec4(clamp(ink,0.,1.),1.);
 }`;
-const display = `precision highp float; varying vec2 uv; uniform sampler2D dye; uniform float strength;
+const display = `precision highp float; varying vec2 uv; uniform sampler2D dye; uniform float strength, pointerGlow, aspect; uniform vec2 pointer;
 void main(){vec3 d=texture2D(dye,uv).rgb;float density=max(d.r,max(d.g,d.b));
 vec3 c=(d.r*vec3(.94,.30,.52)+d.g*vec3(.10,.55,.85)+d.b*vec3(.96,.69,.16))/(d.r+d.g+d.b+.0001);
-gl_FragColor=vec4(c,smoothstep(.018,.52,density)*strength);}`;
+vec2 delta=(uv-pointer)*vec2(aspect,1.);float focus=exp(-dot(delta,delta)/.035)*pointerGlow;
+c*=mix(1.,.60,focus);
+gl_FragColor=vec4(c,smoothstep(.018,.52,density)*mix(strength,.95,focus));}`;
 
 export default function InkCanvas() {
   const ref = useRef<HTMLCanvasElement>(null);
@@ -55,7 +57,7 @@ export default function InkCanvas() {
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1,1,-1,-1,1,-1,1,1,-1,1,1]), gl.STATIC_DRAW);
     const targets: { texture: WebGLTexture; frame: WebGLFramebuffer }[] = [];
     let width = 0, height = 0, frame = 0, lost = false, previous = 0;
-    let point = [-1,-1], last = [-1,-1], movement = 0;
+    let point = [-1,-1], last = [-1,-1], movement = 0, pointerGlow = 0;
     const clearTargets = () => { targets.forEach(t => { gl.deleteTexture(t.texture); gl.deleteFramebuffer(t.frame); }); targets.length = 0; };
     const resize = () => {
       const rect = canvas.getBoundingClientRect(); if (!rect.width || !rect.height || lost) return;
@@ -76,9 +78,9 @@ export default function InkCanvas() {
       if(event.clientY<r.top || event.clientY>r.bottom || event.clientX<r.left || event.clientX>r.right) return;
       last = point[0]<0 ? [(event.clientX-r.left)/r.width,1-(event.clientY-r.top)/r.height] : point;
       if (event.pointerType === "touch") return;
-      point = [(event.clientX-r.left)/r.width,1-(event.clientY-r.top)/r.height]; movement = 1.0;
+      point = [(event.clientX-r.left)/r.width,1-(event.clientY-r.top)/r.height]; movement = 1.7; pointerGlow = 1;
     };
-    const splat = (event: PointerEvent) => { if(event.pointerType === "touch")return; const r=canvas.getBoundingClientRect(); if(event.clientX>=r.left&&event.clientX<=r.right&&event.clientY>=r.top&&event.clientY<=r.bottom){move(event);movement=1.8;} };
+    const splat = (event: PointerEvent) => { if(event.pointerType === "touch")return; const r=canvas.getBoundingClientRect(); if(event.clientX>=r.left&&event.clientX<=r.right&&event.clientY>=r.top&&event.clientY<=r.bottom){move(event);movement=2.8;} };
     const draw = (p: WebGLProgram, texture: WebGLTexture, target: WebGLFramebuffer|null) => {
       gl.useProgram(p); gl.bindFramebuffer(gl.FRAMEBUFFER,target); gl.viewport(0,0,width,height);
       gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D,texture); gl.uniform1i(gl.getUniformLocation(p,"dye"),0);
@@ -100,7 +102,7 @@ export default function InkCanvas() {
       gl.uniform1f(gl.getUniformLocation(sim,"time"),time); gl.uniform1f(gl.getUniformLocation(sim,"aspect"),width/height);
       gl.uniform1f(gl.getUniformLocation(sim,"active"),movement>.02 ? movement : hero ? .14 : .10);
       gl.uniform1f(gl.getUniformLocation(sim,"seed"),time*.24); gl.drawArrays(gl.TRIANGLES,0,6);
-      draw(out,targets[1].texture,null); gl.uniform1f(gl.getUniformLocation(out,"strength"),hero ? .55 : .46); gl.drawArrays(gl.TRIANGLES,0,6); targets.reverse(); movement*=.82; last=point;
+      draw(out,targets[1].texture,null); gl.uniform1f(gl.getUniformLocation(out,"strength"),hero ? .28 : .25); gl.uniform1f(gl.getUniformLocation(out,"pointerGlow"),pointerGlow); gl.uniform2f(gl.getUniformLocation(out,"pointer"),point[0],point[1]); gl.uniform1f(gl.getUniformLocation(out,"aspect"),width/height); gl.drawArrays(gl.TRIANGLES,0,6); targets.reverse(); movement*=.82; pointerGlow*=.985; last=point;
     };
     const contextLost = (e: Event) => { e.preventDefault(); lost=true; if(frame)cancelAnimationFrame(frame);frame=0; };
     const visibilityChange = () => { if(document.hidden || content?.hasAttribute("inert")){if(frame)cancelAnimationFrame(frame);frame=0;}else if(!lost&&!frame)frame=requestAnimationFrame(tick); };

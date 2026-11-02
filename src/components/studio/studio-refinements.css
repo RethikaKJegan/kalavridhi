@@ -81,3 +81,4 @@
 .kv-approved.kv-studio .kv-hero h1 {font-size:clamp(50px,min(6.1vw,10.2svh),102px);line-height:.98}
 @media(max-width:767px){.kv-approved.kv-studio .kv-hero h1{font-size:clamp(42px,12vw,64px);line-height:1.03}.kv-approved .kv-hero-actions{display:grid!important;grid-template-columns:1.1fr 1fr;gap:8px}.kv-approved .kv-hero-actions .kv-pill{font-size:11px!important;padding-left:12px!important;padding-right:6px;gap:6px;min-height:48px}.kv-approved .kv-hero-actions .kv-pill>span{width:28px;height:28px}.kv-brush-toggle{bottom:calc(18px + env(safe-area-inset-bottom))}}
 @media(min-width:768px) and (max-width:1350px){.kv-approved .kv-hero-description{max-width:360px!important}.kv-approved .kv-layered-hero.kv-reference-hero{width:70%}.kv-approved .kv-hero-actions{gap:10px}.kv-approved .kv-hero-actions .kv-pill{font-size:12px!important;padding-left:20px}}
+.kv-approved>.kv-site-ink,.kv-approved>.kv-site-ink.kv-ink-hero,.kv-approved>.kv-site-ink.kv-ink-dark {mask-image:none}

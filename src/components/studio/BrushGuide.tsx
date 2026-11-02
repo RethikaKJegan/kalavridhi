@@ -1,12 +1,10 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import { Eye, EyeOff } from "lucide-react";
+import { useEffect, useRef } from "react";
 
 const stops=["home","about","gallery","workshops","recognition","contact"];
 export default function BrushGuide(){
-  const [hidden,setHidden]=useState(false);
-  return <div className="kv-brush-layer"><button className="kv-brush-toggle" onClick={()=>setHidden(value=>!value)} aria-label={hidden?"Show paintbrush":"Hide paintbrush"}>{hidden?<Eye size={15}/>:<EyeOff size={15}/>}<span>{hidden?"Show brush":"Hide brush"}</span></button>{!hidden&&<GuidedBrush/>}</div>;
+  return <div className="kv-brush-layer"><GuidedBrush/></div>;
 }
 function GuidedBrush(){
   const host=useRef<HTMLDivElement>(null),grip=useRef<HTMLButtonElement>(null);
