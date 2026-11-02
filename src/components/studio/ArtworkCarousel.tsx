@@ -56,6 +56,7 @@ function ArtworkSheet({ artwork, index, total, direction, onOpen }: { artwork: A
     <motion.span layoutId={`artwork-${artwork.id}`} className="kv-art-sheet-image" transition={{ layout: { duration: reduced ? 0 : .42, ease: [.22, 1, .36, 1] } }}>
       <Image unoptimized src={artwork.image} alt={artwork.alt} fill sizes="(max-width: 760px) 85vw, 630px" />
     </motion.span>
+    <span className="kv-paper-curl" aria-hidden="true"/>
     <span className="kv-art-sheet-bottom"><span>{artwork.artForm}</span><ArrowUpRight size={19} /></span>
   </motion.button>;
 }

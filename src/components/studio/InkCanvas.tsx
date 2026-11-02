@@ -32,6 +32,7 @@ export default function InkCanvas() {
   const ref = useRef<HTMLCanvasElement>(null);
   useEffect(() => {
     const canvas = ref.current;
+    const content = document.getElementById("kv-content");
     if (!canvas || matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     const gl = canvas.getContext("webgl", { alpha: true, premultipliedAlpha: false, antialias: false });
     if (!gl) return;
@@ -84,7 +85,7 @@ export default function InkCanvas() {
       const a=gl.getAttribLocation(p,"a"); gl.bindBuffer(gl.ARRAY_BUFFER,buffer); gl.enableVertexAttribArray(a); gl.vertexAttribPointer(a,2,gl.FLOAT,false,0,0);
     };
     const tick = (now: number) => {
-      if(lost || document.hidden || matchMedia("(prefers-reduced-motion: reduce)").matches) { frame = 0; return; }
+      if(lost || document.hidden || content?.hasAttribute("inert") || matchMedia("(prefers-reduced-motion: reduce)").matches) { frame = 0; return; }
       frame = requestAnimationFrame(tick);
       if(targets.length<2 || now-previous<(1000/24)) return;
       previous=now; const time=now*.001;
@@ -102,7 +103,8 @@ export default function InkCanvas() {
       draw(out,targets[1].texture,null); gl.uniform1f(gl.getUniformLocation(out,"strength"),hero ? .35 : .28); gl.drawArrays(gl.TRIANGLES,0,6); targets.reverse(); movement*=.82; last=point;
     };
     const contextLost = (e: Event) => { e.preventDefault(); lost=true; if(frame)cancelAnimationFrame(frame);frame=0; };
-    const visibilityChange = () => { if(document.hidden){if(frame)cancelAnimationFrame(frame);frame=0;}else if(!lost&&!frame)frame=requestAnimationFrame(tick); };
+    const visibilityChange = () => { if(document.hidden || content?.hasAttribute("inert")){if(frame)cancelAnimationFrame(frame);frame=0;}else if(!lost&&!frame)frame=requestAnimationFrame(tick); };
+    const modalObserver = new MutationObserver(visibilityChange); if(content)modalObserver.observe(content,{attributes:true,attributeFilter:["inert"]});
     const ro=new ResizeObserver(resize); ro.observe(canvas);
     const motionMedia = matchMedia("(prefers-reduced-motion: reduce)");
     const motionChange = () => {
@@ -118,7 +120,7 @@ export default function InkCanvas() {
     canvas.addEventListener("webglcontextlost",contextLost); window.addEventListener("pointermove",move,{passive:true}); window.addEventListener("pointerdown",splat,{passive:true});
     window.addEventListener("scroll",updateLayer,{passive:true}); document.addEventListener("visibilitychange",visibilityChange); updateLayer();
     resize(); frame=requestAnimationFrame(tick);
-    return () => { if(frame)cancelAnimationFrame(frame); motionMedia.removeEventListener("change", motionChange); ro.disconnect(); window.removeEventListener("pointermove",move); window.removeEventListener("pointerdown",splat); window.removeEventListener("scroll",updateLayer); document.removeEventListener("visibilitychange",visibilityChange); canvas.removeEventListener("webglcontextlost",contextLost); clearTargets(); gl.deleteBuffer(buffer); programs.forEach(p=>gl.deleteProgram(p)); shaders.forEach(s=>gl.deleteShader(s)); };
+    return () => { if(frame)cancelAnimationFrame(frame); modalObserver.disconnect(); motionMedia.removeEventListener("change", motionChange); ro.disconnect(); window.removeEventListener("pointermove",move); window.removeEventListener("pointerdown",splat); window.removeEventListener("scroll",updateLayer); document.removeEventListener("visibilitychange",visibilityChange); canvas.removeEventListener("webglcontextlost",contextLost); clearTargets(); gl.deleteBuffer(buffer); programs.forEach(p=>gl.deleteProgram(p)); shaders.forEach(s=>gl.deleteShader(s)); };
   }, []);
   return <canvas ref={ref} className="kv-ink kv-site-ink" aria-hidden="true" />;
 }

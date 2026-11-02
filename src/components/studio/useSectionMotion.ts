@@ -42,7 +42,6 @@ export default function useSectionMotion(ref: RefObject<HTMLDivElement | null>) 
         play(node, { opacity: [.65, 1], y: [matchMedia("(max-width:767px)").matches ? 10 : 18, 0] }, { duration: .55, ease: [.22, 1, .36, 1] });
       }, { margin: "0px 0px -6% 0px" });
       const stopAccent = media.matches ? () => {} : inView(root.querySelectorAll(".kv-painted-stroke"), node => {
-        if (matchMedia("(min-width:960px) and (pointer:fine)").matches) return;
         const path = node.querySelector("path");
         if (path) play(path, { pathLength: [0, 1], opacity: [.2, .8] }, { duration: .8, delay: .22, ease: [.22, 1, .36, 1] });
       }, { margin: "0px 0px -8% 0px" });
