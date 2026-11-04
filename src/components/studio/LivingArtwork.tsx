@@ -25,8 +25,11 @@ export default function LivingArtwork({variant="hero"}:{variant?:"hero"|"footer"
     };
     const place=()=>{
       if(variant!=="hero")return;
-      const width=node.clientWidth,height=node.clientHeight,scale=Math.min(width/1484,height/1060),x=(width-1484*scale)/2,y=matchMedia("(max-width:767px)").matches?height-1060*scale:0;
-      bloom.style.left=`${x+310*scale}px`;bloom.style.top=`${y+640*scale}px`;bloom.style.width=`${400*scale}px`;bloom.style.height=`${390*scale}px`;
+      const mobile=matchMedia("(max-width:767px)").matches;
+      const width=node.clientWidth,height=node.clientHeight;
+      const naturalWidth=mobile?1280:1484,naturalHeight=mobile?1280:1060;
+      const scale=Math.min(width/naturalWidth,height/naturalHeight),x=(width-naturalWidth*scale)/2,y=mobile?height-naturalHeight*scale:0;
+      bloom.style.left=`${x+(mobile?250:310)*scale}px`;bloom.style.top=`${y+(mobile?825:640)*scale}px`;bloom.style.width=`${400*scale}px`;bloom.style.height=`${390*scale}px`;
     };
     const pause=()=>{
       const running=visible&&!document.hidden&&!document.getElementById("kv-content")?.hasAttribute("inert")&&!media.matches;

@@ -1,0 +1,12 @@
+# Mobile hero artwork correction — 4 November 2026
+
+The previous mobile layout stacked a wide desktop collage below the description. The corrected composition uses a transparent mobile artwork with a rising right edge and empty upper-left space for live HTML copy. Desktop retains hero-living-collage-v4.webp. Existing CMS content, enquiry actions and animated lotus remain separate elements.
+
+Built-in image generation was used with the supplied phone composition reference and the existing hero-living-collage-v4-small.webp style reference. The result was encoded into WebP without background replacement or cropping:
+
+- public/images/decoration/hero-mobile-story-v1.webp
+- public/images/decoration/hero-mobile-story-v1-small.webp
+
+## Generation prompt
+
+Create ONE transparent PNG website artwork asset, NOT a webpage, NOT a phone mockup. First input is COMPOSITION reference: faithfully extract/recreate ONLY its Indian painted heritage COLLAGE located lower-right of the phone website, retaining its distinctive tall asymmetrical composition. Second input is the EXISTING ART STYLE/CHARACTERS to preserve. Recompose these exact richly painted elements for a MOBILE hero. Canvas square 1024x1024, alpha transparent everywhere outside the artwork. Important SHAPE: upper-left 55% of canvas must remain EMPTY TRANSPARENT from y=0 to y=400, so live text can occupy that region. In upper RIGHT from x=650,y=20 upward rise black-and-white Indian domed palace towers, golden ochre watercolor, blue watercolor and a fine golden mandala. Artwork expands diagonally down and left: intricate black-and-white ornate turban of woman at x=450,y=400, her elegant left-facing profile at x=480,y=600; lower half contains magenta painted lotus at x=300,y=680, richly detailed blue peacock with green/gold feather tail sweeping bottom, Kerala Kathakali painted face on right, another lotus bottom-left. Match FIRST reference layout as closely as possible: woman's face and peacock lower, right hand temples significantly higher, watercolor edges dissolving into transparent alpha. Match second input distinctive patterned turban and facial profile, watercolor brush texture, black ink detail, saturated fuchsia/pink lotus with organic hand-painted veins. Composition covers bottom80% canvas full width and upper-right only. NO text, NO logo, NO buttons, NO device, NO brush, NO white or cream opaque background; ONLY the painted artwork with genuine transparency. Do not add extra women, duplicated faces or artifacts. High quality natural watercolor on transparent cutout.
