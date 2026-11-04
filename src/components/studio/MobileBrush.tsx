@@ -6,7 +6,7 @@ import MopArtwork from "./MopArtwork";
 
 const sectionIds=["home","about","gallery","workshops","recognition","contact"];
 const half=104;
-const selectors:Record<string,string>={home:".kv-reference-hero",about:".kv-portrait",gallery:".kv-art-sheet:not([disabled]) .kv-art-sheet-image",workshops:"h2",recognition:".kv-award-grid",contact:".kv-footer-cta .kv-pill"};
+const selectors:Record<string,string>={home:".kv-reference-hero",about:".kv-portrait",gallery:".kv-art-sheet:not([disabled]) .kv-art-sheet-image",workshops:".kv-moment-track",recognition:".kv-award-grid",contact:".kv-footer-cta .kv-pill"};
 const angles:Record<string,number>={home:-12,about:8,gallery:-24,workshops:20,recognition:-10,contact:14};
 const spring={stiffness:240,damping:34,mass:.55};
 export default function MobileBrush(){
