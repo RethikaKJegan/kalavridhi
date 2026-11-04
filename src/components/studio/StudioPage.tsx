@@ -24,6 +24,7 @@ import "./studio-phase-two.css";
 import "./studio-living.css";
 import "./studio-choreography.css";
 import "./studio-refinements.css";
+import "./studio-mobile.css";
 
 const navigation = [["The studio", "about"], ["Selected work", "gallery"], ["Workshops", "workshops"]];
 const categories = ["All", "Traditional", "Painting", "Drawing & Patterns", "Fabric & Crafts", "Kids"];
@@ -111,7 +112,7 @@ export default function StudioPage({artworks, workshops, settings}: {artworks: A
         <div className="kv-hero-wash" aria-hidden="true"/>
         <div className="kv-hero-content kv-shell">
           <div className="kv-hero-copy"><Eyebrow>Art classes · workshops · original art</Eyebrow>
-            <h1 id="kv-hero-title" tabIndex={-1}>{settings.heroHeading.toLowerCase()==="where creativity blooms." ? <><span>Art classes</span><span className="kv-colour-word">&amp; workshops<PaintedStroke/></span><span className="kv-hero-teacher">with {settings.founderName}</span></> : <span>{settings.heroHeading}</span>}</h1>
+            <h1 id="kv-hero-title" tabIndex={-1}>{settings.heroHeading.toLowerCase()==="where creativity blooms." ? <><span>Art classes</span><span className="kv-colour-word">&amp; workshops<PaintedStroke/></span><span className="kv-hero-teacher">with {settings.founderName}</span></> : <span>{settings.heroHeading}</span>}<span className="kv-mobile-headline">Every Stroke,<span>A New Story<PaintedStroke/></span></span><span className="kv-mobile-teacher">with {settings.founderName}</span></h1>
             <p className="kv-hero-description">{settings.heroHeading.toLowerCase()==="where creativity blooms." ? "Learn traditional and contemporary art through guided classes and creative workshops for children and adults. Explore original artworks by Nishkala Krishna." : settings.heroSubheading}</p>
             <div className="kv-hero-actions"><Pill onClick={()=>enquire("Art classes")}>Enquire about classes</Pill><Pill outline href="#gallery">Explore artworks</Pill></div>
             <ul className="kv-hero-benefits"><li><Palette/><span>Art Classes<br/>for All Ages</span></li><li><Users/><span>Workshops<br/>&amp; Events</span></li><li><Flower2/><span>Traditional<br/>&amp; Contemporary Art</span></li></ul>
