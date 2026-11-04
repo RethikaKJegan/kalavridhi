@@ -1,6 +1,6 @@
 /* The approved desktop composition is retained. These rules serve phone layouts. */
 .kv-mobile-headline,.kv-mobile-teacher{display:none!important}
-@media(max-width:959px),(pointer:coarse){.kv-guided-mop.kv-mobile-mop{width:184px;height:184px}}
+@media(max-width:959px),(pointer:coarse){.kv-guided-mop.kv-mobile-mop{width:208px;height:208px}}
 @media(max-width:767px){
  .kv-approved .kv-header{height:88px;align-items:center;padding:10px 24px;gap:14px}
  .kv-approved .kv-brand-single{max-width:calc(100% - 70px);width:180px}
@@ -62,7 +62,7 @@
  .kv-approved .kv-about-links .kv-pill-outline{flex:0 0 auto;font-size:12px!important}
  .kv-approved .kv-scene-about .kv-mandala{opacity:.07;width:160px;height:160px;left:-100px;top:200px}
  .kv-approved .kv-scene-about .kv-botanical-one{width:120px;left:-98px;bottom:95px;opacity:.6}
- .kv-guided-mop.kv-mobile-mop{width:184px;height:184px;will-change:transform}
+ .kv-guided-mop.kv-mobile-mop{width:208px;height:208px;will-change:transform}
 }
 @media(max-width:374px){
  .kv-approved .kv-hero-copy>.kv-eyebrow{font-size:9px;letter-spacing:.09em}
