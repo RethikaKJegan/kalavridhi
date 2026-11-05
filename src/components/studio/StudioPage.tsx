@@ -114,7 +114,6 @@ export default function StudioPage({artworks, workshops, settings}: {artworks: A
           <div className="kv-hero-copy"><Eyebrow>Art classes · workshops · original art</Eyebrow>
             <h1 id="kv-hero-title" tabIndex={-1}>{settings.heroHeading.toLowerCase()==="where creativity blooms." ? <><span>Art classes</span><span className="kv-colour-word">&amp; workshops<PaintedStroke/></span><span className="kv-hero-teacher">with {settings.founderName}</span></> : <span>{settings.heroHeading}</span>}<span className="kv-mobile-headline">Every Stroke,<span>A New Story<PaintedStroke/></span></span><span className="kv-mobile-teacher">with {settings.founderName}</span></h1>
             <p className="kv-hero-description">{settings.heroHeading.toLowerCase()==="where creativity blooms." ? "Learn traditional and contemporary art through guided classes and creative workshops for children and adults. Explore original artworks by Nishkala Krishna." : settings.heroSubheading}</p>
-            <div className="kv-hero-actions"><Pill onClick={()=>enquire("Art classes")}>Enquire about classes</Pill><Pill outline href="#gallery">Explore artworks</Pill></div>
             <ul className="kv-hero-benefits"><li><Palette/><span>Art Classes<br/>for All Ages</span></li><li><Users/><span>Workshops<br/>&amp; Events</span></li><li><Flower2/><span>Traditional<br/>&amp; Contemporary Art</span></li></ul>
           </div>
           <HeroArtLayers/><div className="kv-floating-petals" aria-hidden="true">{[0,1,2].map(i=><span key={i}><Image unoptimized src="/images/decoration/lotus-painted-petal-v1.webp" alt="" width={24} height={48}/></span>)}</div>
@@ -125,7 +124,7 @@ export default function StudioPage({artworks, workshops, settings}: {artworks: A
       <section id="about" className="kv-about kv-shell kv-space">
         <SceneDecor scene="about"/>
         <div className="kv-about-visual kv-reveal"><div className="kv-portrait"><Image unoptimized src="/images/founder/meet-nishkala.jpg" alt="Nishkala Krishna standing among her colourful paintings" fill sizes="(max-width: 760px) 90vw, 40vw"/></div><div className="kv-experience"><strong>{settings.yearsExperience}<span>+</span></strong><span>YEARS OF ART,<br/>HEART & CURIOSITY</span></div><span className="kv-image-note">NISHKALA KRISHNA · ARTIST & EDUCATOR</span></div>
-        <div className="kv-about-copy kv-reveal"><Eyebrow>The heart behind the art</Eyebrow><h2>Meet <strong>{settings.founderName}.</strong><PaintedStroke/></h2><p className="kv-about-deck">Art is a skill. And a little bit of finding yourself.</p><p>{settings.shortBio}</p><div className="kv-qualifications">{settings.qualifications.map(q=><span key={q}>{q}</span>)}</div><div className="kv-about-links"><Pill onClick={()=>enquire()}>Meet your creative side</Pill><Pill outline onClick={()=>enquire()}>Let&apos;s talk</Pill></div></div>
+        <div className="kv-about-copy kv-reveal"><Eyebrow>The heart behind the art</Eyebrow><h2>Meet <strong>{settings.founderName}.</strong><PaintedStroke/></h2><p className="kv-about-deck">Art is a skill. And a little bit of finding yourself.</p><p>{settings.shortBio}</p><div className="kv-qualifications">{settings.qualifications.map(q=><span key={q}>{q}</span>)}</div></div>
       </section>
 
       <section id="gallery" className="kv-gallery kv-shell kv-space">
@@ -135,7 +134,7 @@ export default function StudioPage({artworks, workshops, settings}: {artworks: A
         <ArtworkCarousel key={filter} artworks={collection} onOpen={a=>setLightbox({...a,layoutId:`artwork-${a.id}`})} />
       </section>
 
-      <section id="workshops" className="kv-workshops kv-shell kv-space"><SceneDecor scene="workshops"/><div className="kv-section-top kv-reveal"><div><Eyebrow>A little time. Something beautiful.</Eyebrow><h2>Workshops &amp; exhibitions.<br/><span className="kv-muted">Art shared together.</span><PaintedStroke flourish/></h2></div><Pill outline onClick={()=>enquire("Upcoming workshops")}>Find your next workshop</Pill></div>
+      <section id="workshops" className="kv-workshops kv-shell kv-space"><SceneDecor scene="workshops"/><div className="kv-section-top kv-reveal"><div><Eyebrow>A little time. Something beautiful.</Eyebrow><h2>Workshops &amp; exhibitions.<br/><span className="kv-muted">Art shared together.</span><PaintedStroke flourish/></h2></div></div>
         <WorkshopGallery workshops={workshops}/>
         {workshops.length > 0 && <div className="kv-session-list">{workshops.map(w=><div key={w.id}><h3>{w.title}</h3><p>{w.description}</p>{w.startAt&&<span>{new Intl.DateTimeFormat("en-IN",{dateStyle:"medium",timeZone:w.timezone||"Asia/Kolkata"}).format(new Date(w.startAt))}{w.location?` · ${w.location}`:""}</span>}{w.registrationOpen?<Pill href={wa(w.whatsappMessage||`Hello! I would like to register for the workshop '${w.title}'.`)} external>Register via WhatsApp</Pill>:<span className="kv-tag">Registration closed</span>}</div>)}</div>}
       </section>
